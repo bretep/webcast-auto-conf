@@ -1,0 +1,315 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+  <TITLE>编码器</TITLE>
+  <LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+  <LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+  <LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+  <SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+  <SCRIPT type="text/javascript">
+    var hostip = window.location.host;
+    function GetNetajax() {
+      ShowWifi();
+      $.ajax({
+        type: "GET",
+        url: "http://" + hostip + "/get_sys",
+        dataType: "xml",
+        cache: false,
+        success: function (data) {
+            var g4_enable = $(data).find("sys").children("g4_enable").text();
+            $("#g4_enable").attr("value", g4_enable);
+            var g4_apn = $(data).find("sys").children("g4_apn").text();
+            $("#g4_apnTxt").attr("value", g4_apn);
+            var g4_username = $(data).find("sys").children("g4_username").text();
+            $("#g4_usernameTxt").attr("value", g4_username);
+            var g4_password = $(data).find("sys").children("g4_password").text();
+            $("#g4_passwordTxt").attr("value", g4_password);
+            var g4_auth_type = $(data).find("sys").children("g4_auth_type").text();
+            $("#g4_auth_type_enable").attr("value", g4_auth_type);
+        }
+      });
+
+      $.ajax({
+        type: "GET",
+        url: "http://" + hostip + "/get_adv",
+        datatype: "xml",
+        cache: false,
+        success: function (data) {
+            var g4_gwasdns_enable = $(data).find("adv").children("g4_gw_as_dns").text();
+            $("#g4_gwasdns_enable").attr("value", g4_gwasdns_enable);
+        }
+      });
+    }
+
+    function Setg4gAjax() {
+      var g4_enable = $("#g4_enable").val();
+      var g4_apn = $("#g4_apnTxt").val();
+      var g4_username = $("#g4_usernameTxt").val();
+      var g4_password = $("#g4_passwordTxt").val();
+      var g4_auth_type = $("#g4_auth_type_enable").val();
+	  if(g4_apn == ""){
+		  //alert('APN设置不能为空！');
+		  //return;
+		  g4_apn=0;
+	  }
+      if(g4_username == "") g4_username = 0;
+      if(g4_password == "") g4_password = 0;
+	  
+	  var g4_gwasdns_enable = $("#g4_gwasdns_enable").val();
+
+      var num = 0;
+      var urlstr = "http://" + hostip + "/set_sys?g4_enable=" + g4_enable + "&g4_apn=" + g4_apn + "&g4_username=" + g4_username + "&g4_password=" + g4_password + "&g4_auth_type=" + g4_auth_type;
+      $.ajax({
+        type: "GET",
+        url: urlstr,
+        dataType: "text",
+        cache: false,
+        success: function (data) {
+          if (data != "succeed") {
+            num += 1;
+          }
+        }
+      });
+
+      $.ajax({
+        type: "GET",
+        url: "http://" + hostip + "/set_adv?g4_gw_as_dns=" + g4_gwasdns_enable,
+        datatype: "text",
+        cache: false,
+        success: function (data) {
+          if (data != "succeed") {
+            num += 1;
+          }
+        }
+      });
+
+      if (num == 0) {
+        alert('Set successfully, please restart your device!');
+      }
+      else {
+        alert('Failed to set!');
+      }
+    }
+
+    function changeLan() {
+      var Language = $("#LanSle").val();
+      if (Language == 'Chinese') {
+        $.ajax({
+          type: "GET",
+          url: "http://" + hostip + "/set_sys?language=chinese",
+          dataType: "text",
+          cache: false
+        });
+        window.location.href = 'g4Set.html';
+      }
+    }
+  </SCRIPT>
+  <META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onLoad="GetNetajax()">
+  <DIV id="body-wrapper">
+    <DIV id="sidebar">
+      <DIV id="sidebar-wrapper">
+        <H1 id="sidebar-title">
+          <A href="#">H.264 Encoder</A>
+        </H1>
+        <!-- Logo (221px wide) -->
+        <A href="#">
+          <IMG id="logo" alt="H.264 Encoder" src="images/logo.png" border="0">
+        </A>
+        <!-- Sidebar Profile links -->
+
+        <UL id="main-nav">
+          <!-- Accordion Menu -->
+          <LI>
+            <A class="nav-top-item no-submenu " href="indexE.html">Status</A>
+          </LI>
+          <LI>
+            <A class="nav-top-item" href="OutputP1MainE.html"> Encoder</A>
+            <UL>
+              <LI>
+                <A href="OutputP1MainE.html">Main stream</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second1E.html">Substream1</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second2E.html">Substream2</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second3E.html">Substream3</A>
+              </LI>
+              <LI>
+                <A href="AudioEncodSetE.html">Audio</A>
+              </LI>
+              <LI>
+                <A href="AdvancSetE.html">Advanced</A>
+              </LI>
+            </UL>
+          </LI>
+          <LI>
+            <A class="nav-top-item" href="OutputP1MainOsdE.html">OSD</A>
+            <UL>
+              <LI>
+                <A href="OutputP1MainOsdE.html">Main stream</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second1OsdE.html">Substream1</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second2OsdE.html">Substream2</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second3OsdE.html">Substream3</A>
+              </LI>
+              <LI>
+                <A href="UplogoE.html">LOGO Upload</A>
+              </LI>
+            </UL>
+          </LI>
+          <LI>
+            <A class="nav-top-item current" href="SetNetE.html">System</A>
+            <UL>
+              <LI>
+                <A href="SetNetE.html">Network</A>
+              </LI>
+              <LI id="wifi">
+                <A href="WifiSetE.html">WIFI</A>
+              </LI>
+              <LI id="g4">
+                <A href="g4SetE.html" class="current">4G</A>
+              </LI>
+              <LI>
+                <A href="SetPasswordE.html">Password</A>
+              </LI>
+              <LI>
+                <A href="RemserialE.html">Serial to TCP</A>
+              </LI>
+              <LI>
+                <A href="SystemUpdateE.html">Upgrade</A>
+              </LI>
+              <LI>
+                <A href="ResetE.html">Reset</A>
+              </LI>
+              <LI>
+                <A href="RebootE.html">Reboot</A>
+              </LI>
+              <LI>
+                <A href="RestartE.html">Schedule Restart</A>
+              </LI>
+            </UL>
+          </LI>
+        </UL>
+      </DIV>
+    </DIV>
+    <!-- End #sidebar -->
+    <DIV id="main-content">
+      <!-- Main Content Section with everything -->
+      <div style="float:right; margin-right:0px; margin-top:-10px;">
+        <p>Language:&nbsp;
+          <select id='LanSle' onChange="changeLan()">
+            <option value="Chinese">Chinese</option>
+
+            <option value="English" selected="selected">English</option>
+          </select>
+        </p>
+      </div>
+
+      <!-- End .shortcut-buttons-set -->
+      <DIV class="clear"></DIV>
+      <!-- End .clear -->
+
+      <DIV class="content-box">
+        <!-- Start Content Box -->
+        <DIV class="content-box-header">
+          <H3>4G</H3>
+        </DIV>
+        <!-- End .content-box-header -->
+        <DIV class="content-box-content">
+          <DIV class="tab-content">
+            <div class="write">
+              <dl>
+                <dt>4G:</dt>
+                <dd>
+                  <select id="g4_enable" name="g4_enable">
+                    <option value="0" selected="selected">Disable</option>
+                    <option value="1">Enable</option>
+                  </select>
+                </dd>
+              </dl>
+
+              <dl>
+                <dt>APN:</dt>
+                <dd>
+                  <input id="g4_apnTxt" name="g4_apnTxt" maxlength="64" size="14" type="text" />
+                </dd>
+              </dl>
+                
+                  <dl>
+                    <dt>Username:</dt>
+                    <dd>
+                        <input id="g4_usernameTxt" name="g4_usernameTxt" maxlength="64" size="18" type="text" />
+                    </dd>
+                  </dl>
+                  <dl>
+                    <dt>Password:</dt>
+                    <dd>
+                        <input id="g4_passwordTxt" name="g4_passwordTxt" maxlength="64" size="18" type="text" />
+                    </dd>
+                  </dl>
+                  <dl>
+                    <dt>Auth Type:</dt>
+                    <dd>
+                        <select id="g4_auth_type_enable" name="g4_auth_type_enable">
+                            <option value="0" selected="selected">None</option>
+                            <option value="1">PAP</option>
+                            <option value="2">CHAP</option>
+                            <option value="3">CHAP+PAP</option>
+                        </select>
+                    </dd>
+                  </dl>
+
+              <dl>
+                <dt>4G Gateway as DNS:</dt>
+                <dd>
+                  <select id="g4_gwasdns_enable" name="g4_gwasdns_enable">
+                    <option value="0" selected="selected">Disable</option>
+                    <option value="1">Enable</option>
+                  </select>
+                </dd>
+              </dl>
+
+              <dl>
+                <dt>&nbsp;&nbsp;</dt>
+                <dd>
+                  <input type="button" class="but" value="Apply" name="insert" onclick="Setg4gAjax()" id="subBut" />
+                </dd>
+              </dl>
+
+            </div>
+            <DIV class="clear"></DIV>
+            <!-- End .clear -->
+
+
+            <DIV class="clear"></DIV>
+            <!-- End .clear -->
+          </DIV>
+          <!-- End #tab2 -->
+        </DIV>
+        <!-- End .content-box-content -->
+      </DIV>
+      <!-- End .content-box -->
+      <!-- Start Notifications -->
+
+
+    </DIV>
+    <!-- End #main-content -->
+  </DIV>
+</BODY>
+
+</HTML>

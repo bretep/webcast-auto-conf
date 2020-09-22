@@ -1,0 +1,63 @@
+#!/bin/sh
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+
+TMP_IP="/tmp/"$interface"_dhcp_ip"
+TMP_MASK="/tmp/"$interface"_dhcp_mask"
+TMP_BROADCAST="/tmp/"$interface"_dhcp_broadcast"
+TMP_ROUTE="/tmp/"$interface"_dhcp_route"
+TMP_DNS="/tmp/"$interface"_dhcp_dns"
+
+update_interface()
+{
+  echo $ip > $TMP_IP
+  [ -n "$subnet" ] && echo $subnet > $TMP_MASK
+  [ -n "$broadcast" ] && echo $broadcast > $BROADCAST
+}
+
+update_routes()
+{
+  if [ -n "$router" ]
+  then
+    echo -n > $TMP_ROUTE
+
+    for i in $router
+    do
+      echo $i >> $TMP_ROUTE
+    done
+  fi
+}
+
+update_dns()
+{
+  echo -n > $TMP_DNS
+  for i in $dns
+  do
+    echo $i >> $TMP_DNS
+  done
+}
+
+deconfig()
+{
+  echo ""
+}
+
+case "$1" in
+  bound|renew)
+    update_interface;
+    update_routes;
+    update_dns;
+  ;;
+
+  deconfig)
+    deconfig;
+  ;;
+
+  *)
+    echo "Usage: $0 {bound|renew|deconfig}"
+    exit 1
+    ;;
+esac
+
+exit 0
+

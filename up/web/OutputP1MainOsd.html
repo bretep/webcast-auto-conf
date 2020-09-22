@@ -1,0 +1,950 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+	<TITLE>编码器</TITLE>
+	<!--    CSS   -->
+	<!-- Reset Stylesheet -->
+	<meta http-equiv="Content-Type" content="text/html; charset=gb2311">
+	<LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+	<SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+	<SCRIPT type="text/javascript">
+		var hostip = window.location.host;
+		function GetInputAjax() {
+			ShowWifi();
+			Getalpha();
+			for (var i = 0; i < 4; i++) {
+				GetOSD(i);
+			}
+		}
+
+		function Getalpha() {
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_osd?enc_chn=0&osd_chn=0",
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var alpha = $(data).find("alpha").text();
+					$("#alpha").attr("value", alpha);
+				}
+			});
+		}
+		function GetOSD(num) {
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_osd?enc_chn=0&osd_chn=" + num,
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var select_enable = $(data).find("enable").text();
+					$('#select_enable' + num).attr("value", select_enable);
+					var select_TP = $(data).find("type").text();
+					$('#select_TP' + num).attr("value", select_TP);
+					var x = $(data).find("x").text();
+					$('#x' + num).attr("value", x);
+					var y = $(data).find("y").text();
+					$("#y" + num).attr("value", y);
+					if (num == 0) {
+						if (y > 1080) y = 1080;
+						if (x > 30) x = 30;
+						$("#scallX0").attr("value", x);
+						$("#scallY0").attr("value", y);
+					}
+					var txt = $(data).find("txt").text();
+					$("#txt" + num).attr("value", txt);
+					var font_size = $(data).find("font_size").text();
+					$("#font_size" + num).attr("value", font_size);
+					var color = parseInt($(data).find("color").text());
+					$("#color" + num).attr("value", color);
+					var tem = color.toString(16);
+					var intleng = 6 - tem.length;
+					for (k = 0; k < intleng; k++) {
+						tem = "0" + tem;
+					}
+					color = "#" + tem;
+					$("#DisColor" + num).css("background-color", color);
+					var bcolor = $(data).find("bcolor").text();
+					$("#bcolor" + num).attr("value", bcolor);
+					var logosel = $(data).find("bmp").text();
+					$("#logosel" + num).attr("value", logosel);
+					OsdShow(select_enable, num);
+					typeshow(select_TP, num)
+				}
+			});
+		}
+
+		function OsdShow(select_enable, num) {
+			if (select_enable == 0) {
+				$("#osd" + num).hide();
+
+			}
+			else {
+				$("#osd" + num).show();
+			}
+		}
+		function typeshow(select_TP, num) {
+			select_TP = parseInt(select_TP);
+			if (select_TP == 0) {
+				$("#txtX" + num).show();
+				$("#txtY" + num).show();
+				$("#txtOsd" + num).show();
+				$("#fontsizeOsd" + num).show();
+				$("#colorOsd" + num).show();
+				$("#colorpanelOsd" + num).show();
+				$("#bcolorOsd" + num).show();
+				$("#logoOsd" + num).hide();
+				if (num == 0) {
+					$("#SX" + num).hide();
+					$("#SY" + num).hide();
+				}
+			}
+			else if (select_TP == 1) {
+				$("#txtX" + num).show();
+				$("#txtY" + num).show();
+				$("#txtOsd" + num).hide();
+				$("#fontsizeOsd" + num).hide();
+				$("#colorOsd" + num).hide();
+				$("#colorpanelOsd" + num).hide();
+				$("#bcolorOsd" + num).hide();
+				$("#logoOsd" + num).show();
+				if (num == 0) {
+					$("#SX" + num).hide();
+					$("#SY" + num).hide();
+				}
+			}
+			else if (select_TP == 10) {
+				$("#txtX" + num).hide();
+				$("#txtY" + num).hide();
+				$("#txtOsd" + num).show();
+				$("#fontsizeOsd" + num).show();
+				$("#colorOsd" + num).show();
+				$("#colorpanelOsd" + num).show();
+				$("#bcolorOsd" + num).show();
+				$("#logoOsd" + num).hide();
+				if (num == 0) {
+					$("#SX" + num).show();
+					$("#SY" + num).show();
+				}
+			}
+			else if (select_TP == 11) {
+				$("#txtX" + num).show();
+				$("#txtY" + num).show();
+				$("#txtOsd" + num).hide();
+				$("#fontsizeOsd" + num).show();
+				$("#colorOsd" + num).show();
+				$("#colorpanelOsd" + num).show();
+				$("#bcolorOsd" + num).show();
+				$("#logoOsd" + num).hide();
+				if (num == 0) {
+					$("#SX" + num).hide();
+					$("#SY" + num).hide();
+				}
+			}
+		}
+
+		function changeOsdShow(num) {
+			var select_enable = $('#select_enable' + num).val();
+			OsdShow(select_enable, num);
+		}
+		function changetypeshow(num) {
+			var select_TP = $('#select_TP' + num).val();
+			typeshow(select_TP, num);
+		}
+		function SetInput() {
+			var alpha = $("#alpha").val();
+			var validated = IsvalidatAlpha(alpha);
+			for (var i = 0; i < 4; i++) {
+				var select_enable = $("#select_enable" + i).val();
+				var select_TP = $("#select_TP" + i).val();
+				var txt = $("#txt" + i).val();
+				txt = encodeURIComponent(txt);
+				var font_size = $("#font_size" + i).val();
+				var logosel = $("#logosel" + i).val();
+				var x = $("#x" + i).val();
+				var y = $("#y" + i).val();
+				if (select_TP == 10) {
+					x = $("#scallX0").val();
+					y = $("#scallY0").val();
+				}
+				validated += IsValidate(select_enable, select_TP, font_size, x, y, txt, i, logosel);
+			}
+			if (validated == 0) {
+				var result = 0;
+				for (var i = 0; i < 4; i++) {
+					var select_enable = $("#select_enable" + i).val();
+					var select_TP = $("#select_TP" + i).val();
+					var txt = $("#txt" + i).val();
+					txt = encodeURIComponent(txt);
+					var font_size = $("#font_size" + i).val();
+					var color = $("#color" + i).val();
+					var bcolor = $("#bcolor" + i).val();
+					var logosel = $("#logosel" + i).val();
+					var x = $("#x" + i).val();
+					var y = $("#y" + i).val();
+					if (select_TP == 10) {
+						x = $("#scallX0").val();
+						y = $("#scallY0").val();
+					}
+					result += setosd(i, alpha, select_enable, select_TP, font_size, x, y, txt, color, logosel, bcolor);
+				}
+				if (result == 0) {
+					alert('设置成功,请重启设备！');
+				}
+				else {
+					alert('设置失败！');
+				}
+			}
+		}
+		function setosd(num, alpha, select_enable, select_TP, font_size, x, y, txt, color, logosel, bcolor) {
+			var result = 0;
+			$.ajax({
+				url: "http://" + hostip + "/set_osd?enc_chn=0&osd_chn=" + num + "&alpha=" + alpha + "&txt=" + txt + "&font_size=" + font_size + "&x=" + x + "&y=" + y + "&enable=" + select_enable + "&type=" + select_TP + "&bmp=" + logosel + "&color=" + color + "&bcolor=" + bcolor,
+				dataType: "text",
+				cache: false,
+				success: function (data) {
+					if (data == "succeed") {
+						result = 0;
+					}
+					else {
+						result = 1;
+					}
+				}
+			});
+			return result;
+		}
+		function GetName(num) {
+			var result = "";
+			if (num == 0) {
+				result = "区域一";
+			}
+			else if (num == 1) {
+				result = "区域二";
+			}
+			else if (num == 2) {
+				result = "区域三";
+			}
+			else if (num == 3) {
+				result = "区域四";
+			}
+			return result;
+		}
+		function IsvalidatAlpha(alpha) {
+			var validated = 0;
+			var Intalpha = IsInteger(alpha);
+			if (alpha < 0 || alpha > 128 || Intalpha == false) {
+				alert('透明度应是0-128间的整数！');
+				validated = 1;
+			}
+			return validated;
+		}
+
+		function IsValidate(select_enable, select_TP, font_size, x, y, txt, num, logosel) {
+			var room = GetName(num);
+			validated = 0;
+			var Intfont_size = IsInteger(font_size);
+			var Intx = IsInteger(x);
+			var Inty = IsInteger(y);
+			if (select_enable == 1) {
+				if (select_TP == 0) {
+					if (x < 0 || x > 1920 || Intx == false) {
+						alert(room + '文本X的值应是0-1920间的整数！');
+						validated = 1;
+					}
+					else if (y < 0 || y > 1080 || Inty == false) {
+						alert(room + '文本Y的值应是0-1080间的整数！');
+						validated = 1;
+					}
+					else if (txt == "") {
+						alert(room + '文本不能为空！');
+						validated = 1;
+					}
+					else if (font_size < 8 || font_size > 72 || Intfont_size == false) {
+						alert(room + '文本字体大小应是8-72间的整数！');
+						validated = 1;
+					}
+				}
+				else if (select_TP == 1) {
+					if (x < 0 || x > 1920 || Intx == false) {
+						alert(room + '文本X的值应是0-1920间的整数！');
+						validated = 1;
+					}
+					else if (y < 0 || y > 1080 || Inty == false) {
+						alert(room + '文本Y的值应是0-1080间的整数！');
+						validated = 1;
+					}
+					else if (logosel == "" || logosel == null) {
+						alert('请为' + room + '选择LOGO！');
+						validated = 1;
+					}
+				}
+				else if (select_TP == 10) {
+					if (x < 0 || x > 30 || Intx == false) {
+						alert(room + '速度的值应是0-30间的整数！');
+						validated = 1;
+					}
+					else if (y < 0 || y > 1080 || Inty == false) {
+						alert(room + '位置值应是0-1080间的整数！');
+						validated = 1;
+					}
+					else if (txt == "") {
+						alert(room + '文本不能为空！');
+						validated = 1;
+					}
+					else if (font_size < 8 || font_size > 72 || Intfont_size == false) {
+						alert(room + '文本字体大小应是8-72间的整数！');
+						validated = 1;
+					}
+				}
+				else if (select_TP == 11) {
+					if (x < 0 || x > 1920 || Intx == false) {
+						alert(room + '文本X的值应是0-1920间的整数！');
+						validated = 1;
+					}
+					else if (y < 0 || y > 1080 || Inty == false) {
+						alert(room + '文本Y的值应是0-1080间的整数！');
+						validated = 1;
+					}
+					else if (font_size < 8 || font_size > 72 || Intfont_size == false) {
+						alert(room + '文本字体大小应是8-72间的整数！');
+						validated = 1;
+					}
+				}
+			}
+			return validated;
+		}
+		function IsInteger(interger) {
+			var IsInteger = true;
+			if (parseInt(interger) == interger) {
+				IsInteger = true;
+			}
+			else {
+				IsInteger = false;
+			}
+			return IsInteger;
+		}
+
+		function checkcolor(str) {
+			var ss = /^(#[0-9a-fA-F]{6})$/;
+			return ss.test(str);
+		}
+		function changeLan() {
+			var Language = $("#LanSle").val();
+			if (Language == 'English') {
+				$.ajax({
+					type: "GET",
+					url: "http://" + hostip + "/set_sys?language=english",
+					dataType: "text",
+					cache: false
+				});
+				window.location.href = 'OutputP1MainOsdE.html';
+			}
+		}	  
+	</SCRIPT>
+
+	<script type="text/javascript" language="javascript">
+		var ColorHex = new Array('00', '33', '66', '99', 'CC', 'FF');
+		var SpColorHex = new Array('FF0000', '00FF00', '0000FF', 'FFFF00', '00FFFF', 'FF00FF');
+		var current = null;
+		function intocolor(num) {
+			var colorTable = ''
+			for (i = 0; i < 2; i++)   //循环2部分
+			{
+				for (j = 0; j < 6; j++)  //循环6行
+				{
+					colorTable = colorTable + '<tr>'
+					for (k = 0; k < 3; k++) {
+						for (l = 0; l < 6; l++) {
+							colorTable = colorTable + '<td  onclick="doclick(this,' + num + ')" style="background-color:#' + ColorHex[k + i * 3] + ColorHex[l] + ColorHex[j] + '">'
+						}
+					}
+				}
+			}
+			colorTable = '<table border="1" cellspacing="0" cellpadding="0" style="border-collapse: collapse; bordercolor="000000" >'
+				+ colorTable + '</table><a onclick="colorpanelhide(' + num + ')">关闭</a>';
+			document.getElementById("colorpanel" + num).innerHTML = colorTable;
+		}
+
+
+		function rgbToHex(aa) {
+			if (aa.indexOf("rgb") != -1) {
+				aa = aa.replace("rgb(", "")
+
+				aa = aa.replace(")", "")
+
+				aa = aa.split(",")
+
+				r = parseInt(aa[0]);
+
+				g = parseInt(aa[1]);
+
+				b = parseInt(aa[2]);
+
+				r = r.toString(16);
+
+				if (r.length == 1) { r = '0' + r; }
+
+				g = g.toString(16);
+
+				if (g.length == 1) { g = '0' + g; }
+
+				b = b.toString(16);
+
+				if (b.length == 1) { b = '0' + b; }
+
+				return ("#" + r + g + b).toUpperCase();
+
+			}
+			else {
+				return aa;
+			}
+		}
+
+		function colorpanelshow(num) {
+			intocolor(num);
+			$("#colorpanel" + num).show();
+		}
+		function colorpanelhide(num) {
+			$("#colorpanel" + num).hide();
+		}
+		function doclick(obj, num) {
+			var bg = $(obj).css('background-color');
+			$("#DisColor" + num).css("background", bg);
+			color = getHexColor(bg);
+			$('#color' + num).attr("value", color);
+		}
+		function getHexColor(bg) {
+			var rgb = bg.split('(');
+			var color1 = parseInt(rgb[1].split(',')[0]) << 16;
+			var color2 = parseInt(rgb[1].split(',')[1]) << 8;
+			var color3 = parseInt(rgb[1].split(',')[2]);
+			var color = color1 + color2 + color3;
+			return color;
+		}
+	</script>
+
+</head>
+<META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onLoad="GetInputAjax()">
+	<DIV id="body-wrapper">
+		<DIV id="sidebar">
+			<DIV id="sidebar-wrapper">
+				<H1 id="sidebar-title">
+					<A href="#">编码器</A>
+				</H1>
+				<!-- Logo (221px wide) -->
+				<A href="#">
+					<IMG id="logo" alt="编码器" src="images/logo.png" border="0">
+				</A>
+				<!-- Sidebar Profile links -->
+				<UL id="main-nav">
+					<!-- Accordion Menu -->
+					<LI>
+						<A class="nav-top-item no-submenu " href="index.html">状态显示</A>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1Main.html"> 编码设置</A>
+						<UL>
+							<LI>
+								<A href="OutputP1Main.html">主码流</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1.html">次码流1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2.html">次码流2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3.html">次码流3</A>
+							</LI>
+							<LI>
+								<A href="AudioEncodSet.html">音频设置</A>
+							</LI>
+							<LI>
+								<A href="AdvancSet.html">高级设置</A>
+							</LI>
+						</UL>
+					<LI>
+						<A class="nav-top-item current" href="OutputP1MainOsd.html"> OSD设置</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainOsd.html" class="current">主码流</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1Osd.html">次码流1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2Osd.html">次码流2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3Osd.html">次码流3</A>
+							</LI>
+							<LI>
+								<A href="Uplogo.html">LOGO上传</A>
+							</LI>
+						</UL>
+					</LI>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="SetNet.html">系统设置</A>
+						<UL>
+							<LI>
+								<A href="SetNet.html">网络设置</A>
+							</LI>
+							<LI id="wifi">
+								<A href="WifiSet.html">WIFI设置</A>
+							</LI>
+							<LI id="g4">
+								<A href="g4Set.html">4G设置</A>
+							</LI>
+							<LI>
+								<A href="SetPassword.html">密码设置</A>
+							</LI>
+							<LI>
+								<A href="Remserial.html">串口透传</A>
+							</LI>
+							<LI>
+								<A href="SystemUpdate.html">系统更新</A>
+							</LI>
+							<LI>
+								<A href="Reset.html">恢复出厂设置</A>
+							</LI>
+							<LI>
+								<A href="Reboot.html">重启设备</A>
+							</LI>
+							<LI>
+								<A href="Restart.html">定时重启</A>
+							</LI>
+						</UL>
+					</LI>
+				</UL>
+			</DIV>
+		</DIV>
+		<!-- End #sidebar -->
+		<DIV id="main-content">
+			<!-- Main Content Section with everything -->
+			<!-- End .shortcut-buttons-set -->
+			<div style="float:right; margin-right:0px; margin-top:-10px;">
+				<p>语言:&nbsp;
+					<select id='LanSle' onChange="changeLan()">
+						<option value="Chinese" selected="selected">中文</option>
+
+						<option value="English">英文</option>
+					</select>
+				</p>
+			</div>
+
+			<DIV class="clear"></DIV>
+			<!-- End .clear -->
+
+			<DIV class="content-box">
+				<!-- Start Content Box -->
+				<DIV class="content-box-header">
+					<H3>主码流</H3>
+				</DIV>
+				<!-- End .content-box-header -->
+				<DIV class="content-box-content">
+					<DIV class="tab-content">
+
+
+						<div class="write">
+							<dl>
+								<dt>透明度：</dt>
+								<dd>
+									<input id="alpha" name="alpha" maxlength="4" size="36" type="text" /> [0-128]
+								</dd>
+							</dl>
+							<dl></dl>
+							<dl class="line2"></dl>
+							<H3>区域一</H3>
+
+							<dl>
+								<dt>区域：</dt>
+								<dd>
+									<select id="select_enable0" name="select_enable0" onchange="changeOsdShow(0)">
+										<option value="0" selected="selected">禁用</option>
+										<option value="1">启用</option>
+									</select>
+								</dd>
+							</dl>
+							<div id="osd0">
+								<dl>
+									<dt>类型：</dt>
+									<dd>
+										<select id="select_TP0" name="select_TP0" onchange="changetypeshow(0)">
+											<option value="0" selected="selected">文本</option>
+											<option value="1">图片</option>
+											<option value="10">滚动文本</option>
+											<option value="11">时间</option>
+										</select>
+									</dd>
+								</dl>
+
+								<dl id="SX0">
+									<dt>位置：</dt>
+									<dd>
+										<INPUT name="scallY0" id="scallY0" type="text" maxlength="4" size="36"> [0-1080]
+									</dd>
+								</dl>
+								<dl id="SY0">
+									<dt>速度：</dt>
+									<dd>
+										<INPUT name="scallX0" id="scallX0" type="text" maxlength="3" size="36"> [0-30]
+									</dd>
+								</dl>
+
+								<dl id="txtX0">
+									<dt>X：</dt>
+									<dd>
+										<INPUT name="x0" id="x0" type="text" maxlength="5" size="36"> [0-1920]
+									</dd>
+								</dl>
+								<dl id="txtY0">
+									<dt>Y：</dt>
+									<dd>
+										<INPUT name="y0" id="y0" type="text" maxlength="5" size="36"> [0-1080]
+									</dd>
+								</dl>
+								<dl id="txtOsd0">
+									<dt>文本：</dt>
+									<dd>
+										<input id="txt0" name="txt0" maxlength="512" size="36" type="text" />
+									</dd>
+								</dl>
+								<dl id="fontsizeOsd0">
+									<dt>字体大小：</dt>
+									<dd>
+										<input id="font_size0" name="font_size0" maxlength="4" size="36" type="text" /> [8-72]
+									</dd>
+								</dl>
+								<dl id="bcolorOsd0">
+									<dt>背景颜色：</dt>
+									<dd>
+										<select id="bcolor0" name="bcolor0">
+											<option value="15856113" selected="selected">透明色</option>
+											<option value="16777215">白色</option>
+											<option value="0">黑色</option>
+										</select>
+									</dd>
+								</dl>
+								<dl id="colorOsd0">
+									<dt>字体颜色：</dt>
+									<dd>
+										<input type="text" name="DisColor0" id="DisColor0" size="8" style="border:solid 1px #707070;background-color:#000000" />
+										<input id="color0" name="color0" maxlength="7" size="36" value="0" type="text" style="display:none" />
+										<a onclick="colorpanelshow(0)">选取颜色</a>
+									</dd>
+								</dl>
+								<dl id="colorpanelOsd0">
+									<dt>&nbsp;</dt>
+									<dd>
+										<div id="colorpanel0" style="display:none;"> </div>
+									</dd>
+								</dl>
+								<dl id="logoOsd0">
+									<dt>LOGO：</dt>
+									<dd>
+										<select id="logosel0" name="logosel0">
+											<option value="logo1.bmp" selected="selected">logo1</option>
+											<option value="logo2.bmp">logo2</option>
+											<option value="logo3.bmp">logo3</option>
+											<option value="logo4.bmp">logo4</option>
+										</select>
+									</dd>
+								</dl>
+
+							</div>
+
+							<dl></dl>
+							<dl class="line2"></dl>
+							<H3>区域二</H3>
+							<dl>
+								<dt>区域：</dt>
+								<dd>
+									<select id="select_enable1" name="select_enable1" onchange="changeOsdShow(1)">
+										<option value="0" selected="selected">禁用</option>
+										<option value="1">启用</option>
+									</select>
+								</dd>
+							</dl>
+							<div id="osd1">
+
+								<dl>
+									<dt>类型：</dt>
+									<dd>
+										<select id="select_TP1" name="select_TP1" onchange="changetypeshow(1)">
+											<option value="0" selected="selected">文本</option>
+											<option value="1">图片</option>
+										</select>
+									</dd>
+								</dl>
+								<dl>
+									<dt>X：</dt>
+									<dd>
+										<INPUT name="x1" id="x1" type="text" maxlength="5" size="36"> [0-1920]
+									</dd>
+								</dl>
+								<dl>
+									<dt>Y：</dt>
+									<dd>
+										<INPUT name="y1" id="y1" type="text" maxlength="5" size="36"> [0-1080]
+									</dd>
+								</dl>
+								<dl id="txtOsd1">
+									<dt>文本：</dt>
+									<dd>
+										<input id="txt1" name="txt1" maxlength="512" size="36" type="text" />
+
+									</dd>
+								</dl>
+								<dl id="fontsizeOsd1">
+									<dt>字体大小：</dt>
+									<dd>
+										<input id="font_size1" name="font_size1" maxlength="4" size="36" type="text" /> [8-72]
+									</dd>
+								</dl>
+								<dl id="bcolorOsd1">
+									<dt>背景颜色：</dt>
+									<dd>
+										<select id="bcolor1" name="bcolor1">
+											<option value="15856113" selected="selected">透明色</option>
+											<option value="16777215">白色</option>
+											<option value="0">黑色</option>
+										</select>
+									</dd>
+								</dl>
+								<dl id="colorOsd1">
+									<dt>字体颜色：</dt>
+									<dd>
+										<input type="text" name="DisColor1" id="DisColor1" size="8" style="border:solid 1px #707070;background-color:#000000" />
+										<input id="color1" name="color1" maxlength="7" size="36" value="0" type="text" style="display:none" />
+										<a onclick="colorpanelshow(1)">选取颜色</a>
+									</dd>
+								</dl>
+								<dl id="colorpanelOsd1">
+									<dt>&nbsp;</dt>
+									<dd>
+										<div id="colorpanel1" style="display:none;"> </div>
+									</dd>
+								</dl>
+								<dl id="logoOsd1">
+									<dt>LOGO：</dt>
+									<dd>
+										<select id="logosel1" name="logosel1">
+											<option value="logo1.bmp" selected="selected">logo1</option>
+											<option value="logo2.bmp">logo2</option>
+											<option value="logo3.bmp">logo3</option>
+											<option value="logo4.bmp">logo4</option>
+										</select>
+									</dd>
+								</dl>
+
+							</div>
+							<dl></dl>
+							<dl class="line2"></dl>
+							<H3>区域三</H3>
+
+							<dl>
+								<dt>区域：</dt>
+								<dd>
+									<select id="select_enable2" name="select_enable2" onchange="changeOsdShow(2)">
+										<option value="0" selected="selected">禁用</option>
+										<option value="1">启用</option>
+									</select>
+								</dd>
+							</dl>
+							<div id="osd2">
+
+								<dl>
+									<dt>类型：</dt>
+									<dd>
+										<select id="select_TP2" name="select_TP2" onchange="changetypeshow(2)">
+											<option value="0" selected="selected">文本</option>
+											<option value="1">图片</option>
+										</select>
+									</dd>
+								</dl>
+								<dl>
+									<dt>X：</dt>
+									<dd>
+										<INPUT name="x2" id="x2" type="text" maxlength="5" size="36"> [0-1920]
+									</dd>
+								</dl>
+								<dl>
+									<dt>Y：</dt>
+									<dd>
+										<INPUT name="y2" id="y2" type="text" maxlength="5" size="36"> [0-1080]
+									</dd>
+								</dl>
+								<dl id="txtOsd2">
+									<dt>文本：</dt>
+									<dd>
+										<input id="txt2" name="txt2" maxlength="512" size="36" type="text" />
+
+									</dd>
+								</dl>
+								<dl id="fontsizeOsd2">
+									<dt>字体大小：</dt>
+									<dd>
+										<input id="font_size2" name="font_size2" maxlength="4" size="36" type="text" /> [8-72]
+									</dd>
+								</dl>
+								<dl id="bcolorOsd2">
+									<dt>背景颜色：</dt>
+									<dd>
+										<select id="bcolor2" name="bcolor2">
+											<option value="15856113" selected="selected">透明色</option>
+											<option value="16777215">白色</option>
+											<option value="0">黑色</option>
+										</select>
+									</dd>
+								</dl>
+								<dl id="colorOsd2">
+									<dt>字体颜色：</dt>
+									<dd>
+										<input type="text" name="DisColor2" id="DisColor2" size="8" style="border:solid 1px #707070;background-color:#000000" />
+										<input id="color2" name="color2" maxlength="7" size="36" value="0" type="text" style="display:none" />
+										<a onclick="colorpanelshow(2)">选取颜色</a>
+									</dd>
+								</dl>
+								<dl id="colorpanelOsd2">
+									<dt>&nbsp;</dt>
+									<dd>
+										<div id="colorpanel2" style="display:none;"> </div>
+									</dd>
+								</dl>
+								<dl id="logoOsd2">
+									<dt>LOGO:</dt>
+									<dd>
+										<select id="logosel2" name="logosel2">
+											<option value="logo1.bmp" selected="selected">logo1</option>
+											<option value="logo2.bmp">logo2</option>
+											<option value="logo3.bmp">logo3</option>
+											<option value="logo4.bmp">logo4</option>
+										</select>
+									</dd>
+								</dl>
+
+							</div>
+							<dl></dl>
+							<dl class="line2"></dl>
+							<H3>区域四</H3>
+
+							<dl>
+								<dt>区域：</dt>
+								<dd>
+									<select id="select_enable3" name="select_enable3" onchange="changeOsdShow(3)">
+										<option value="0" selected="selected">禁用</option>
+										<option value="1">启用</option>
+									</select>
+								</dd>
+							</dl>
+							<div id="osd3">
+
+								<dl>
+									<dt>类型：</dt>
+									<dd>
+										<select id="select_TP3" name="select_TP3" onchange="changetypeshow(3)">
+											<option value="0" selected="selected">文本</option>
+											<option value="1">图片</option>
+										</select>
+									</dd>
+								</dl>
+								<dl>
+									<dt>X：</dt>
+									<dd>
+										<INPUT name="x3" id="x3" type="text" maxlength="5" size="36"> [0-1920]
+									</dd>
+								</dl>
+								<dl>
+									<dt>Y：</dt>
+									<dd>
+										<INPUT name="y3" id="y3" type="text" maxlength="5" size="36"> [0-1080]
+									</dd>
+								</dl>
+								<dl id="txtOsd3">
+									<dt>文本：</dt>
+									<dd>
+										<input id="txt3" name="txt3" maxlength="512" size="36" type="text" />
+
+									</dd>
+								</dl>
+								<dl id="fontsizeOsd3">
+									<dt>字体大小：</dt>
+									<dd>
+										<input id="font_size3" name="font_size3" maxlength="4" size="36" type="text" /> [8-72]
+									</dd>
+								</dl>
+								<dl id="bcolorOsd3">
+									<dt>背景颜色：</dt>
+									<dd>
+										<select id="bcolor3" name="bcolor3">
+											<option value="15856113" selected="selected">透明色</option>
+											<option value="16777215">白色</option>
+											<option value="0">黑色</option>
+										</select>
+									</dd>
+								</dl>
+								<dl id="colorOsd3">
+									<dt>字体颜色：</dt>
+									<dd>
+										<input type="text" name="DisColor3" id="DisColor3" size="8" style="border:solid 1px #707070;background-color:#000000" />
+										<input id="color3" name="color3" maxlength="7" size="36" value="0" type="text" style="display:none" />
+										<a onclick="colorpanelshow(3)">选取颜色</a>
+									</dd>
+								</dl>
+								<dl id="colorpanelOsd3">
+									<dt>&nbsp;</dt>
+									<dd>
+										<div id="colorpanel3" style="display:none;"> </div>
+									</dd>
+								</dl>
+								<dl id="logoOsd3">
+									<dt>LOGO：</dt>
+									<dd>
+										<select id="logosel3" name="logosel3">
+											<option value="logo1.bmp" selected="selected">logo1</option>
+											<option value="logo2.bmp">logo2</option>
+											<option value="logo3.bmp">logo3</option>
+											<option value="logo4.bmp">logo4</option>
+										</select>
+									</dd>
+								</dl>
+
+							</div>
+							<dl>
+								<dt>&nbsp;&nbsp;</dt>
+								<dd>
+									<input type="button" class="but" value="设 置" name="insert" onclick="SetInput()" id="subBut" />
+								</dd>
+							</dl>
+
+						</div>
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+
+
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+					</DIV>
+					<!-- End #tab2 -->
+				</DIV>
+				<!-- End .content-box-content -->
+			</DIV>
+			<!-- End .content-box -->
+			<!-- Start Notifications -->
+
+
+		</DIV>
+		<!-- End #main-content -->
+	</DIV>
+</BODY>
+
+</HTML>

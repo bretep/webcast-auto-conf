@@ -1,0 +1,977 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+	<TITLE>H.264 Encoder</TITLE>
+	<LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+	<link rel="stylesheet" href="player/default.css">
+	<SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="player/artDialog.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="player/player.js"></SCRIPT>
+	<SCRIPT type="text/javascript">
+		var hostip = window.location.host;
+		function Getajax(portid) {
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_status",
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var framerate_0 = $(data).find("vi[id=" + portid + "]").children("framerate").text();
+					var int_cnt_0 = $(data).find("vi[id=" + portid + "]").children("int_cnt").text();
+					var lost_int_0 = $(data).find("vi[id=" + portid + "]").children("lost_int").text();
+					var width_0 = $(data).find("vi[id=" + portid + "]").children("width").text();
+					var height_0 = $(data).find("vi[id=" + portid + "]").children("height").text();
+					var interlaced_0 = $(data).find("vi[id=" + portid + "]").children("interlaced").text();
+					var runtime = $(data).find("runtime").text();
+					var cpuusage = $(data).find("cpuusage").text();
+					var aisamplerate = $(data).find("aisamplerate").text();
+					var net_packet_sent = $(data).find("net_packet_sent").text();
+					var net_packet_dropped = $(data).find("net_packet_dropped").text();
+					$("#net_packet_sent").append(net_packet_sent);
+					$("#net_packet_dropped").append(net_packet_dropped);
+					var memoryfree = $(data).find("memoryfree").text();
+					var memorytotal = $(data).find("memorytotal").text();
+					memoryfree = memoryfree / 1024;
+					memorytotal = memorytotal / 1024;
+					var memoryused = memorytotal - memoryfree;
+					memorytotal = memorytotal.toFixed(1);
+					memoryused = memoryused.toFixed(1);
+					if (memoryfree < 15) {
+						$("#memory").css("color", "red");
+						var memory = memoryused + "M/" + memorytotal + "M(If Memory usage always more than 85%, please close some HLS stream or low bitrate)";
+						$("#memory").append(memory);
+					}
+					else {
+						var memory = memoryused + "M/" + memorytotal + "M";
+						$("#memory").append(memory);
+					}
+
+					if (cpuusage >= 85) {
+						$("#cpuusage").css("color", "red");
+						$("#cpuusage").append(cpuusage + "% (If CPU usage always more than 85%, please close some stream.)");
+					}
+					else {
+						$("#cpuusage").append(cpuusage + "%");
+					}
+					var whframerate_0 = width_0 + "x" + height_0;
+					whframerate_0 = getI_P(interlaced_0, whframerate_0);
+					whframerate_0 = whframerate_0 + "@" + framerate_0;
+
+					$("#int_cnt_" + portid).append(int_cnt_0);
+					$("#lost_int_" + portid).append(lost_int_0);
+					$("#whframerate_" + portid).append(whframerate_0);
+					$("#runtime").append(runtime);
+					$("#aisamplerate").append(aisamplerate);
+					var aitick = $(data).find("aitick").text();
+					$("#aitick").append(aitick);
+					var systime=$(data).find("systime").text(); 
+					$("#systime").append(systime);
+
+					var dev_exist = $(data).find("wifi").find("dev_exist").text();
+					var wifi_enable = $(data).find("wifi").find("enable").text();
+					var state = $(data).find("wifi").find("state").text();
+					var wifi_ap_mode = $(data).find("wifi").find("ap_mode").text();
+					var ssid = $(data).find("wifi").find("ssid").text();
+					var ip = $(data).find("wifi").find("ip").text();
+					var level = $(data).find("wifi").find("level").text();
+					var freq = $(data).find("wifi").find("freq").text();
+					var mac = $(data).find("wifi").find("mac").text();
+					if (wifi_ap_mode == "0") {
+						get_wifi_sta(dev_exist, wifi_enable, state, ssid, ip, level, freq, mac);
+					}
+					else {
+						get_wifi_ap(dev_exist, wifi_enable, ssid, ip, mac);
+					}
+					var g4_dev_exist = $(data).find("g4").find("dev_exist").text();
+					var g4_enable = $(data).find("g4").find("enable").text();
+					var g4_mode = $(data).find("g4").find("mode").text();
+					var g4_status = $(data).find("g4").find("status").text();
+					var g4_strength = $(data).find("g4").find("strength").text();
+					var g4_online_time = $(data).find("g4").find("online_time").text();
+					var g4_in_kbyte = $(data).find("g4").find("in_kbyte").text() + "kbyte";
+					var g4_out_kbyte = $(data).find("g4").find("out_kbyte").text() + "kbyte";
+					var g4_gateway = $(data).find("g4").find("gateway").text();
+					var g4_ip = $(data).find("g4").find("ip").text();
+					var g4_imei = $(data).find("g4").find("imei").text();
+					var g4_cme_err = $(data).find("g4").find("cme_err").text();
+					Getg4(g4_dev_exist, g4_enable, g4_mode, g4_status, g4_strength, g4_online_time, g4_in_kbyte, g4_out_kbyte, g4_gateway, g4_ip, g4_imei, g4_cme_err);
+					var enable = $(data).find("lan_dhcp").find("enable").text();
+					var ip = $(data).find("lan_dhcp").find("ip").text();
+					var mask = $(data).find("lan_dhcp").find("mask").text();
+					var route = $(data).find("lan_dhcp").find("route").text();
+					get_dhcp(enable, ip, mask, route);
+					for (i = 0; i < 4; i++) {
+						if (i != 0) {
+							var venc_enable = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("enable").text();
+							if (venc_enable == 0) {
+								$("#fileld_disable_" + i).show();
+								$("#second_" + i).hide();
+							}
+							else {
+								$("#fileld_disable_" + i).hide();
+								$("#second_" + i).show();
+							}
+						}
+
+                        var codec = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("codec").text();
+						if (codec == "96") {
+							$("#codec" + portid + "_" + i).append("H.264");
+							$("#play" + portid + "_" + i).show();
+                            $("#div_mjpgandjpg" + portid + "_" + i).hide();
+						}
+						else if(codec == "265"){
+							$("#codec" + portid + "_" + i).append("H.265");
+							$("#play" + portid + "_" + i).hide();
+                            $("#div_mjpgandjpg" + portid + "_" + i).hide();
+						}
+                        else if(codec == "1002"){
+							$("#codec" + portid + "_" + i).append("MJPEG");
+							$("#play" + portid + "_" + i).hide();
+                            $("#div_mjpgandjpg" + portid + "_" + i).show();
+						}
+
+						var rtmp_url = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("rtmp_url0").text();
+                        if(rtmp_url == ""){
+                            $("#rtmp_url" + portid + "_" + i).append("Disable");
+                        }
+                        else{
+                            $("#rtmp_url" + portid + "_" + i).append(rtmp_url);
+                        }
+
+                        var rtmp_status = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("rtmp_status").text();
+						var rtmp_push_url = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("rtmp_publish_url").text();
+						if (rtmp_push_url == "") {
+							$("#rtmp_push_url" + portid + "_" + i).append("Disable");
+						}
+						else {
+                            if(rtmp_push_url.indexOf("rtsp://") != -1){
+                                if (rtmp_status == 0) {
+                                    rtmp_push_url = 'RTSP PUSH URL(Connected): ' + rtmp_push_url + '</DIV>';
+                                }
+                                else {
+                                    rtmp_push_url = 'RTSP PUSH URL(Not Connected): ' + rtmp_push_url + '</DIV>';
+                                }
+                            }
+                            else{
+                                if (rtmp_status == 0) {
+                                    rtmp_push_url = 'RTMP PUSH URL(Connected): ' + rtmp_push_url + '</DIV>';
+                                }
+                                else {
+                                    rtmp_push_url = 'RTMP PUSH URL(Not Connected): ' + rtmp_push_url + '</DIV>';
+                                }
+                            }
+							$("#rtmp_push_url" + portid + "_" + i).html(rtmp_push_url);
+						}
+						var framerate = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("framerate").text();
+						var width = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("width").text();
+						var height = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("height").text();
+						var interlaced = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("interlaced").text();
+						var whframerate = width + "x" + height + "@" + framerate;
+						$("#whframerate" + portid + "_" + i).append(whframerate);
+
+						var bitrate = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("bitrate").text();
+						$("#bitrate" + portid + "_" + i).append(bitrate);
+                        
+                        var mjpg_url0 = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("mjpg_url0").text();
+						if (mjpg_url0 == "") {
+							$("#mjpg0_url" + portid + "_" + i).append("Disable");
+						}
+						else {
+							mjpg_url0 = changeIP(mjpg_url0, 'http://');
+							$("#mjpg0_url" + portid + "_" + i).append('<a target="_blank" href="' + mjpg_url0 + '">' + mjpg_url0 + '</a>');
+						}
+
+                        var jpg_url0 = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("jpg_url0").text();
+						if (jpg_url0 == "") {
+							$("#jpg0_url" + portid + "_" + i).append("Disable");
+						}
+						else {
+							jpg_url0 = changeIP(jpg_url0, 'http://');
+							$("#jpg0_url" + portid + "_" + i).append('<a target="_blank" href="' + jpg_url0 + '">' + jpg_url0 + '</a>');
+						}
+
+						var ts_url0 = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("ts_url0").text();
+						if (ts_url0 == "") {
+							$("#ts0_url" + portid + "_" + i).append("Disable");
+						}
+						else {
+							ts_url0 = changeIP(ts_url0, 'http://');
+							$("#ts0_url" + portid + "_" + i).append(ts_url0);
+						}
+
+						var hls_url0 = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("hls_url0").text();
+						eval("$hls_" + i + "='" + hls_url0 + "'");
+						if (hls_url0 == "") {
+							$("#hls0_url" + portid + "_" + i).append("Disable");
+						}
+						else {
+							hls_url0 = changeIP(hls_url0, 'http://');
+							$("#hls0_url" + portid + "_" + i).append(hls_url0);
+						}
+
+						var flv_url0 = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("flv_url0").text();
+						eval("$flv_" + i + "='" + flv_url0 + "'");
+						if (flv_url0 == "") {
+							$("#flv0_url" + portid + "_" + i).append("Disable");
+						}
+						else {
+							flv_url0 = changeIP(flv_url0, 'http://');
+							$("#flv0_url" + portid + "_" + i).append(flv_url0);
+						}
+						var rtsp_url0 = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("rtsp_url0").text();
+						if (rtsp_url0 == "") {
+							$("#rtsp0_url" + portid + "_" + i).append("Disable");
+						}
+						else {
+							rtsp_url0 = changeIP(rtsp_url0, 'rtsp://');
+							$("#rtsp0_url" + portid + "_" + i).append(rtsp_url0);
+						}
+						var multicast_url0 = $(data).find("vi[id=" + portid + "]").find("venc[id=" + i + "]").children("multicast_url0").text();
+						if (multicast_url0 == "") {
+							$("#multicast_url" + portid + "_" + i).append("Disable");
+						}
+						else {
+							$("#multicast_url" + portid + "_" + i).append(multicast_url0);
+						}
+
+					}
+				}
+
+			})
+
+		}
+		function get_dhcp(enable, ip, mask, route) {
+			if (enable == 0) {
+				$("#lan_dhcp_Enable").hide();
+			}
+			else {
+				$("#lan_dhcp_Enable").show();
+				$("#ip").append(ip);
+				$("#mask").append(mask);
+				$("#route").append(route);
+			}
+		}
+		function getI_P(interlaced, whframerate) {
+			if (interlaced == 0) {
+				whframerate = whframerate + "p";
+			}
+			else {
+				whframerate = whframerate + "i";
+			}
+			return whframerate;
+		}
+		function get_wifi_sta(dev_exist, wifi_enable, state, ssid, ip, level, freq, mac) {
+			if (dev_exist == 0) {
+				$("#wifi_Enable").hide();
+			}
+			else {
+				$("#wifi_Enable").show();
+				if (wifi_enable == 0) {
+					$("#wifi_en").hide();
+					$("#wifi_disen").show();
+				}
+				else {
+					$("#wifi_disen").hide();
+					$("#wifi_en").show();
+					strstate = Getstate(state);
+					if (state == "COMPLETED") {
+						$("#wifi_state").append(strstate);
+						$("#wifi_ssid").append(ssid);
+						$("#wifi_mac").append(mac);
+						$("#wifi_ip").append(ip);
+						if (level != "") {
+							level += "%";
+							$("#wifi_level").show();
+							$("#level").append(level);
+						}
+						else {
+							$("#wifi_level").hide();
+						}
+						if (freq != "") {
+							freq = freq / 1000;
+							freq += " GHz";
+							$("#wifi_freq").show();
+							$("#freq").append(freq);
+							$("#wifi_rate").show();
+						}
+						else {
+							$("#wifi_freq").hide();
+							$("#wifi_rate").hide();
+						}
+					}
+					else {
+						$("#wifi_mac").append(mac);
+						$("#wifi_state").append(strstate);
+						$("#wifi_ssid").hide();
+						$("#wifi_ip").hide();
+						$("#wifi_level").hide();
+						$("#wifi_freq").hide();
+						$("#wifi_rate").hide();
+					}
+				}
+
+			}
+		}
+		function get_wifi_ap(dev_exist, wifi_enable, ssid, ip, mac) {
+			if (dev_exist == 0) {
+				$("#wifi_Enable").hide();
+			}
+			else {
+				$("#wifi_Enable").show();
+				if (wifi_enable == 0) {
+					$("#wifi_en").hide();
+					$("#wifi_disen").show();
+				}
+				else {
+					$("#wifi_disen").hide();
+					$("#wifi_en").show();
+					$("#wifi_mac").append(mac);
+					$("#wifi_ssid").append(ssid);
+					$("#wifi_ip").append(ip);
+					$("#wifi_level").hide();
+					$("#wifi_freq").hide();
+					$("#wifi_rate").hide();
+					$("#wifi_state").hide();
+				}
+			}
+		}
+		function Getg4(g4_dev_exist, g4_enable, g4_mode, g4_status, g4_strength, g4_online_time, g4_in_kbyte, g4_out_kbyte, g4_gateway, g4_ip, g4_imei, g4_cme_err) {
+			if (g4_dev_exist == 0) {
+				$("#g4_Enable").hide();
+			}
+			else {
+				$("#g4_Enable").show();
+				if (g4_enable == 0) {
+					$("#g4_disen").show();
+					$("#g4_en").hide();
+				}
+				else {
+					$("#g4_disen").hide();
+					$("#g4_en").show();
+					g4_status = Getg4Status(g4_status, g4_cme_err);
+					$("#g4_status").append(g4_status);
+					$("#g4_imei").append(g4_imei);
+					$("#g4_mode").append(g4_mode);
+					g4_strength = Getg4strength(g4_strength);
+					$("#g4_strength").append(g4_strength);
+					g4_online_time = formatSeconds(g4_online_time);
+					$("#g4_online_time").append(g4_online_time);
+					$("#g4_in_kbyte").append(g4_in_kbyte);
+					$("#g4_out_kbyte").append(g4_out_kbyte);
+					$("#g4_ip").append(g4_ip);
+					$("#g4_gateway").append(g4_gateway);
+				}
+			}
+		}
+		function formatSeconds(value) {
+
+			var theTime = parseInt(value);// 秒
+
+			var theTime1 = 0;// 分
+
+			var theTime2 = 0;// 小时
+
+			if (theTime > 60) {
+
+				theTime1 = parseInt(theTime / 60);
+
+				theTime = parseInt(theTime % 60);
+
+				if (theTime1 > 60) {
+
+					theTime2 = parseInt(theTime1 / 60);
+
+					theTime1 = parseInt(theTime1 % 60);
+
+				}
+
+			}
+
+			var result = "" + parseInt(theTime) + "seconds";
+
+			if (theTime1 > 0) {
+
+				result = "" + parseInt(theTime1) + "minutes" + result;
+
+			}
+
+			if (theTime2 > 0) {
+				result = "" + parseInt(theTime2) + "hours" + result;
+
+			}
+			return result;
+		}
+
+		function Getg4strength(g4_strength) {
+			if (g4_strength == 255) {
+				g4_strength = "NO SIGNAL";
+			}
+			else {
+				g4_strength = "-" + (119 - parseInt(g4_strength)) + "dBm";
+			}
+			return g4_strength;
+		}
+		function Getg4Status(state, err) {
+			var result = "";
+			if (state == "1") {
+				result = "COMPLETED";
+			}
+			else if (state == "2") {
+				result = "CONNECTING";
+			}
+			else {
+				result = "DISCONNECTED";
+                if(err != "0") result += "(" + err + ")";
+			}
+			return result;
+		}
+		function GetajaxStatus() {
+			ShowWifi();
+			Getajax(0);
+		}
+		function Getstate(state) {
+			var result = "";
+			if (state == "COMPLETED") {
+				result = "COMPLETED";
+			}
+			else if (state == "DISCONNECTED") {
+				result = "DISCONNECTED";
+			}
+			else {
+				result = "connecting(If you don't connect for a long time, check the wifi settings.)";
+			}
+			return result;
+		}
+		function changeIP(str, tmp1) {
+			var sn = findstr(str, '/', 3);
+			var newstr = "";
+			var tmp2 = str.substring(sn, str.length);
+			newstr = tmp1 + hostip + tmp2;
+			return newstr;
+		}
+		function findstr(str, cha, num) {
+			var x = str.indexOf(cha);
+			for (var i = 0; i < num; i++) {
+				x = str.indexOf(cha, x + i);
+			}
+			return x;
+		}
+		function getNowFormatDate() {
+			var now =new Date();
+			var  currenseconds=  Math.round(now.getTime()/1000);
+			return currenseconds;
+		}  
+		function Getsystime()
+		{
+			var nowtime=getNowFormatDate();
+			$.ajax({
+			  type: "GET",
+			  url: "http://" + hostip + "/set_time?sync_time="+nowtime,
+			  dataType: "text",
+			  cache: false,
+        success: function (data) {
+					if (data == "succeed") {
+						alert('Set successfully!');
+						window.location.href = "";
+					}
+					else {
+						alert('Failed to set!');
+					}
+				}
+			}); 
+		}
+
+		function changeLan() {
+			var Language = $("#LanSle").val();
+			if (Language == 'Chinese') {
+				$.ajax({
+					type: "GET",
+					url: "http://" + hostip + "/set_sys?language=chinese",
+					dataType: "text",
+					cache: false
+				});
+				window.location.href = 'index.html';
+			}
+		} 
+	</SCRIPT>
+	<META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onLoad="GetajaxStatus()">
+	<DIV id="body-wrapper">
+		<DIV id="sidebar">
+			<DIV id="sidebar-wrapper">
+				<H1 id="sidebar-title">
+					<A href="#">H.264 Encoder</A>
+				</H1>
+				<!-- Logo (221px wide) -->
+				<A href="#">
+					<IMG id="logo" alt="H.264 Encoder" src="images/logo.png" border="0">
+				</A>
+				<!-- Sidebar Profile links -->
+
+				<UL id="main-nav">
+					<!-- Accordion Menu -->
+					<LI>
+						<A class="nav-top-item no-submenu current" href="indexE.html">Status</A>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1MainE.html">Encoder</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainE.html">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1E.html">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2E.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3E.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="AudioEncodSetE.html">Audio</A>
+							</LI>
+							<LI>
+								<A href="AdvancSetE.html">Advanced</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1MainOsdE.html">OSD</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainOsdE.html">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1OsdE.html">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2OsdE.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3OsdE.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="UplogoE.html">LOGO Upload</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item " href="SetNetE.html">System</A>
+						<UL>
+							<LI>
+								<A href="SetNetE.html">Network</A>
+							</LI>
+							<LI id="wifi">
+								<A href="WifiSetE.html">WIFI</A>
+							</LI>
+							<LI id="g4">
+								<A href="g4SetE.html">4G</A>
+							</LI>
+							<LI>
+								<A href="SetPasswordE.html">Password</A>
+							</LI>
+							<LI>
+								<A href="RemserialE.html">Serial to TCP</A>
+							</LI>
+							<LI>
+								<A href="SystemUpdateE.html">Upgrade</A>
+							</LI>
+							<LI>
+								<A href="ResetE.html">Reset</A>
+							</LI>
+							<LI>
+								<A href="RebootE.html">Reboot</A>
+							</LI>
+							<LI>
+								<A href="RestartE.html">Schedule Restart</A>
+							</LI>
+						</UL>
+					</LI>
+				</UL>
+				<!-- End #main-nav -->
+
+
+				<!-- End #messages -->
+			</DIV>
+		</DIV>
+		<!-- End #sidebar -->
+		<DIV id="main-content">
+			<!-- Main Content Section with everything -->
+
+			<div style="float:right; margin-right:0px; margin-top:-10px;">
+				<p>Language:&nbsp;
+					<select id='LanSle' onChange="changeLan()">
+						<option value="Chinese">Chinese</option>
+					
+						<option value="English" selected="selected">English</option>
+					</select>
+				</p>
+			</div>
+
+			<!-- End .shortcut-buttons-set -->
+			<DIV class="clear"></DIV>
+			<!-- End .clear -->
+
+
+			<DIV class="content-box statues">
+				<!-- Start Content Box -->
+				<DIV class="content-box-header">
+					<H3>Status</H3>
+				</DIV>
+				<!-- End .content-box-header -->
+				<DIV class="content-box-content">
+					<DIV id="tab1" class="tab-content">
+						<p>
+							<h4>Status</h4>
+						</p>
+						<p>
+							<span id="runtime">Running Time: </span>
+						</p>
+						<p>
+                            <span id="systime">Device Time: </span><span class="span_href" onclick="Getsystime()">(Sync Time To Device)</span>
+						<p>
+							<span id="cpuusage">CPU Usage: </span>
+						</p>
+						<p>
+							<span id="memory">Memory Usage: </span>
+						</p>
+						<p>
+							<span id="whframerate_0">Input Size: </span>
+						</p>
+						<p>
+							<span id="int_cnt_0"> Collected Video Frames: </span>
+						</p>
+						<p>
+							<span id="lost_int_0">Lost Video Frames: </span>
+						</p>
+						<p>
+							<span id="aisamplerate">Audio Samplerate: </span>
+						</p>
+						<p>
+							<span id="aitick">Collected Audio Frames: </span>
+						</p>
+
+						<p>
+							<span id="net_packet_sent">Net Packet Sent: </span>
+						</p>
+						<p>
+							<span id="net_packet_dropped">Net Packet Dropped: </span>
+						</p>
+					</div>
+					<div id="lan_dhcp_Enable">
+						<DIV class="line"></DIV>
+						<p>
+							<h4>DHCP Status</h4>
+						</p>
+						<p>
+							<span id="ip">IP: </span>
+						</p>
+						<p>
+							<span id="mask">Netmask: </span>
+						</p>
+						<p>
+							<span id="route">Gateway: </span>
+						</p>
+					</div>
+					<div id="wifi_Enable">
+						<DIV class="line"></DIV>
+						<p>
+							<h4>WIFI Status</h4>
+						</p>
+						<div id="wifi_disen">
+							<p>
+								<span>WIFI: Disable</span>
+							</p>
+						</div>
+						<div id="wifi_en">
+							<p>
+								<span id="wifi_state">WIFI: </span>
+							</p>
+							<p>
+								<span id="wifi_ssid">WIFI SSID: </span>
+							</p>
+							<p>
+								<span id="wifi_ip">WIFI IP: </span>
+							</p>
+							<p>
+								<span id="wifi_mac">WIFI MAC: </span>
+							</p>
+							<p id="wifi_level">
+								<span id="level">WIFI Level: </span>
+							</p>
+							<p id="wifi_freq">
+								<span id="freq">WIFI Freq: </span>
+							</p>
+							<p id="wifi_rate">
+								<span>WIFI Max Bit Rate: 270 Mb/s</span>
+							</p>
+						</div>
+					</div>
+
+					<div id="g4_Enable">
+						<DIV class="line"></DIV>
+						<p>
+							<h4>4G Status</h4>
+						</p>
+						<div id="g4_disen">
+							<p>
+								<span>4G: Disable</span>
+							</p>
+						</div>
+						<div id="g4_en">
+							<p>
+								<span id="g4_status">Status: </span>
+							</p>
+							<p>
+								<span id="g4_imei">IMEI: </span>
+							</p>
+							<p>
+								<span id="g4_mode">Mode: </span>
+							</p>
+							<p>
+								<span id="g4_strength">Level: </span>
+							</p>
+							<p>
+								<span id="g4_online_time">Online: </span>
+							</p>
+							<p>
+								<span id="g4_in_kbyte">Rx: </span>
+							</p>
+							<p>
+								<span id="g4_out_kbyte">Tx: </span>
+							</p>
+							<p>
+								<span id="g4_ip">IP: </span>
+							</p>
+							<p>
+								<span id="g4_gateway">Gateway: </span>
+							</p>
+						</div>
+					</div>
+					<DIV class="line"></DIV>
+					<p>
+						<h4>Main Stream</h4>
+					</p>
+                    <p>
+                        <span id="codec0_0">Encoding Type: </span>
+                    </p>
+					<p>
+						<span id="whframerate0_0">Encoded Size: </span>
+					</p>
+					<p>
+						<span id="bitrate0_0">Bitrate(kbit): </span>
+					</p>
+                    <div id="div_mjpgandjpg0_0">
+                    <p>
+						<span id="mjpg0_url0_0">MJPG URL: </span>
+					</p>
+                    <p>
+						<span id="jpg0_url0_0">JPG URL: </span>
+					</p>
+                    </div>
+					<p>
+						<span id="ts0_url0_0">TS URL: </span>
+					</p>
+					<p>
+						<span id="hls0_url0_0">HLS URL: </span>
+					</p>
+					<p>
+						<span id="flv0_url0_0">FLV URL: </span>
+					</p>
+					<p>
+						<span id="rtsp0_url0_0">RTSP URL:</span>
+					</p>
+					<p>
+                        <span id="rtmp_url0_0">RTMP URL: </span>
+                    </p>
+                    <p>
+                        <span id="rtmp_push_url0_0">RTMP PUSH URL: </span>
+                    </p>
+					<p>
+						<span id="multicast_url0_0">Multicast URL: </span>
+					</p>
+					<p id="play0_0">
+						<a href="" onclick="videoPlayerE($flv_0,$hls_0,'','640','480');return false">Preview(Delay 2000ms)</a>
+					</p>
+					<DIV class="line"></DIV>
+
+					<p>
+						<h4>Substream1</h4>
+					</p>
+
+					<DIV id="fileld_disable_1">
+						<p>
+							<span>Disabled (the main stream frame rate of 31~60 frames, will disable Substream)</span>
+						</p>
+					</DIV>
+
+					<div id="second_1">
+                        <p>
+                            <span id="codec0_1">Encoding Type: </span>
+                        </p>
+						<p>
+							<span id="whframerate0_1">Encoded Size: </span>
+						</p>
+						<p>
+							<span id="bitrate0_1">Bitrate(kbit): </span>
+						</p>
+                        <div id="div_mjpgandjpg0_1">
+                        <p>
+                            <span id="mjpg0_url0_1">MJPG URL: </span>
+                        </p>
+                        <p>
+                            <span id="jpg0_url0_1">JPG URL: </span>
+                        </p>
+                        </div>
+						<p>
+							<span id="ts0_url0_1">TS URL: </span>
+						</p>
+						<p>
+							<span id="hls0_url0_1">HLS URL: </span>
+						</p>
+						<p>
+							<span id="flv0_url0_1">FLV URL: </span>
+						</p>
+						<p>
+							<span id="rtsp0_url0_1">RTSP URL: </span>
+						</p>
+						<p>
+						    <span id="rtmp_url0_1">RTMP URL: </span>
+                        </p>
+                        <p>
+                            <span id="rtmp_push_url0_1">RTMP PUSH URL: </span>
+                        </p>
+						<p>
+							<span id="multicast_url0_1">Multicast URL: </span>
+						</p>
+						<p id="play0_1">
+							<a href="" onclick="videoPlayerE($flv_1,$hls_1,'','640','480');return false">Preview(Delay 2000ms)</a>
+						</p>
+					</div>
+					<DIV class="line"></DIV>
+					<p>
+						<h4>Substream2</h4>
+					</p>
+					<DIV id="fileld_disable_2">
+						<p>
+							<span>Disabled (the main stream frame rate of 31~60 frames, will disable Substream)</span>
+						</p>
+					</DIV>
+					<div id="second_2">
+                        <p>
+                            <span id="codec0_2">Encoding Type: </span>
+                        </p>
+						<p>
+							<span id="whframerate0_2">Encoded Size: </span>
+						</p>
+						<p>
+							<span id="bitrate0_2">Bitrate(kbit): </span>
+						</p>
+                        <div id="div_mjpgandjpg0_2">
+                        <p>
+                            <span id="mjpg0_url0_2">MJPG URL: </span>
+                        </p>
+                        <p>
+                            <span id="jpg0_url0_2">JPG URL: </span>
+                        </p>
+                        </div>
+						<p>
+							<span id="ts0_url0_2">TS URL: </span>
+						</p>
+						<p>
+							<span id="hls0_url0_2">HLS URL: </span>
+						</p>
+						<p>
+							<span id="flv0_url0_2">FLV URL: </span>
+						</p>
+						<p>
+							<span id="rtsp0_url0_2">RTSP URL: </span>
+						</p>
+						<p>
+						    <span id="rtmp_url0_2">RTMP URL: </span>
+                        </p>
+                        <p>
+                            <span id="rtmp_push_url0_2">RTMP PUSH URL: </span>
+                        </p>
+						<p>
+							<span id="multicast_url0_2">Multicast URL: </span>
+						</p>
+						<p id="play0_2">
+							<a href="" onclick="videoPlayerE($flv_2,$hls_2,'','640','480');return false">Preview(Delay 2000ms)</a>
+						</p>
+					</div>
+					<DIV class="line"></DIV>
+					<p>
+						<h4>Substream3</h4>
+					</p>
+					<DIV id="fileld_disable_3">
+						<p>
+							<span>Disabled (the main stream frame rate of 31~60 frames, will disable Substream)</span>
+						</p>
+					</DIV>
+					<div id="second_3">
+                        <p>
+                            <span id="codec0_3">Encoding Type: </span>
+                        </p>
+						<p>
+							<span id="whframerate0_3">Encoded Size: </span>
+						</p>
+						<p>
+							<span id="bitrate0_3">Bitrate(kbit): </span>
+						</p>
+                        <div id="div_mjpgandjpg0_3">
+                        <p>
+                            <span id="mjpg0_url0_3">MJPG URL: </span>
+                        </p>
+                        <p>
+                            <span id="jpg0_url0_3">JPG URL: </span>
+                        </p>
+                        </div>
+						<p>
+							<span id="ts0_url0_3">TS URL: </span>
+						</p>
+						<p>
+							<span id="hls0_url0_3">HLS URL: </span>
+						</p>
+						<p>
+							<span id="flv0_url0_3">FLV URL: </span>
+						</p>
+						<p>
+							<span id="rtsp0_url0_3">RTSP URL: </span>
+						</p>
+						<p>
+						    <span id="rtmp_url0_3">RTMP URL: </span>
+                        </p>
+                        <p>
+                            <span id="rtmp_push_url0_3">RTMP PUSH URL: </span>
+                        </p>
+						<p>
+							<span id="multicast_url0_3">Multicast URL: </span>
+						</p>
+						<p id="play0_3">
+							<a href="" onclick="videoPlayerE($flv_3,$hls_3,'','640','480');return false">Preview(Delay 2000ms)</a>
+						</p>
+					</div>
+				</DIV>
+				<!-- End #tab2 -->
+			</DIV>
+			<!-- End .content-box-content -->
+		</DIV>
+
+
+
+	</DIV>
+	<!-- End #main-content -->
+	</DIV>
+</BODY>
+
+</HTML>
