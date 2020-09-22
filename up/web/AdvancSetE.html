@@ -1,0 +1,724 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+	<TITLE>H.264 Encoder</TITLE>
+	<!--    CSS   -->
+	<!-- Reset Stylesheet -->
+	<LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+	<SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+	<SCRIPT type="text/javascript">
+		var hostip = window.location.host;
+		function GetAdvaced() {
+			ShowWifi();
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_adv",
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var interlaced_only_bottom = $(data).find("interlaced_only_bottom").text();
+					$("#interlaced_only_bottom").attr("value", interlaced_only_bottom);
+					var ts_muxer = $(data).find("ts_muxer").text();
+					$("#ts_muxer").attr("value", ts_muxer);
+					var ts_once = $(data).find("ts_once").text();
+					$("#ts_once").attr("value", ts_once);
+					var slice_split_enable = $(data).find("slice_split_enable").text();
+					$("#slice_split_enable").attr("value", slice_split_enable);
+					var slice_split_size = $(data).find("slice_split_size").text();
+					$("#slice_split_size").attr("value", slice_split_size);
+					var min_qp = $(data).find("min_qp").text();
+					$("#min_qp").attr("value", min_qp);
+					var max_qp = $(data).find("max_qp").text();
+					$("#max_qp").attr("value", max_qp);
+					var httpts_password_enable = $(data).find("httpts_password_enable").text();
+					$("#httpts_password_enable").attr("value", httpts_password_enable);
+					var csc_enable = $(data).find("csc_enable").text();
+					$("#csc_enable").attr("value", csc_enable);
+					var csc_contrast = $(data).find("csc_contrast").text();
+					$("#csc_contrast").attr("value", csc_contrast);
+					var ts_transport_stream_id = $(data).find("ts_transport_stream_id").text();
+					$("#ts_transport_stream_id").attr("value", ts_transport_stream_id);
+					var ts_pmt_start_pid = $(data).find("ts_pmt_start_pid").text();
+					$("#ts_pmt_start_pid").attr("value", ts_pmt_start_pid);
+					var ts_start_pid = $(data).find("ts_start_pid").text();
+					$("#ts_start_pid").attr("value", ts_start_pid);
+					var ts_tables_version = $(data).find("ts_tables_version").text();
+					$("#ts_tables_version").attr("value", ts_tables_version);
+					var ts_rc_mode = $(data).find("ts_rc_mode").text();
+					$("#ts_rc_mode").attr("value", ts_rc_mode);
+					var ts_service_name = $(data).find("ts_service_name").text();
+					$("#ts_service_name").attr("value", ts_service_name);
+					var ts_service_provider = $(data).find("ts_service_provider").text();
+					$("#ts_service_provider").attr("value", ts_service_provider);
+					var vmix_compatible = $(data).find("vmix_compatible").text();
+					$("#vmix_compatible").attr("value", vmix_compatible);
+					var net_packet_drop_threshold = $(data).find("net_packet_drop_threshold").text();
+					$("#net_packet_drop_threshold").attr("value", net_packet_drop_threshold);
+
+					var video_only = $(data).find("video_only").text();
+					$("#only_video_enable").attr("value", video_only);
+					var audio_only = $(data).find("audio_only").text();
+					$("#only_audio_enable").attr("value", audio_only);
+
+                    var udp_private_package_size = $(data).find("udp_private_package_size").text();
+                    $("#udp_private_package_size").attr("value", udp_private_package_size);
+				}
+			});
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_sys",
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var ts_over_rtsp = $(data).find("ts_over_rtsp").text();
+					$("#ts_over_rtsp").attr("value", ts_over_rtsp);
+					var rtp_multicast = $(data).find("rtp_multicast").text();
+					$("#rtp_multicast").attr("value", rtp_multicast);
+					var udp_ttl = $(data).find("udp_ttl").text();
+					$("#udp_ttl").attr("value", udp_ttl);
+				}
+			})
+		}
+
+		function SetCSC() {
+			var csc_enable = $("#csc_enable").val();
+			var csc_contrast = $("#csc_contrast").val();
+			var validated = IsValidateCSC(csc_contrast);
+			if (validated == true) {
+				urlstr = "http://" + hostip + "/set_adv?csc_enable=" + csc_enable + "&csc_contrast=" + csc_contrast;
+				$.ajax({
+					url: urlstr,
+					dataType: "text",
+					cache: false,
+					success: function (data) {
+						if (data == "succeed") {
+							alert('Set successfully, please restart your device!');
+						}
+						else {
+							alert('Failed to set!');
+						}
+					}
+				});
+			}
+		}
+
+		function SetAdvanced() {
+			var video_only = $("#only_video_enable").val();
+			var audio_only = $("#only_audio_enable").val();
+			var interlaced_only_bottom = $("#interlaced_only_bottom").val();
+			var ts_once = $("#ts_once").val();
+			var ts_muxer = $("#ts_muxer").val();
+			var slice_split_enable = $("#slice_split_enable").val();
+			var slice_split_size = $("#slice_split_size").val();
+			var min_qp = $("#min_qp").val();
+			var max_qp = $("#max_qp").val();
+			var ts_over_rtsp = $("#ts_over_rtsp").val();
+			var rtp_multicast = $("#rtp_multicast").val();
+			var httpts_password_enable = $("#httpts_password_enable").val();
+			var ts_transport_stream_id = $("#ts_transport_stream_id").val();
+			var ts_pmt_start_pid = $("#ts_pmt_start_pid").val();
+			var ts_start_pid = $("#ts_start_pid").val();
+			var ts_tables_version = $("#ts_tables_version").val();
+			var ts_rc_mode = $("#ts_rc_mode").val();
+			var ts_service_name = $("#ts_service_name").val();
+			var ts_service_provider = $("#ts_service_provider").val();
+			var vmix_compatible = $("#vmix_compatible").val();
+			var net_packet_drop_threshold = $("#net_packet_drop_threshold").val();
+			var udp_ttl = $("#udp_ttl").val();
+
+            var udp_private_package_size = $("#udp_private_package_size").val();
+
+			var validated = IsValidate(ts_once, slice_split_size, min_qp, max_qp, ts_transport_stream_id, ts_pmt_start_pid, ts_start_pid, ts_tables_version, ts_service_name, ts_service_provider, net_packet_drop_threshold);
+			var num = 0;
+			if (validated == true) {
+				urlstr = "http://" + hostip + "/set_adv?ts_once=" + ts_once + "&interlaced_only_bottom=" + interlaced_only_bottom + "&ts_muxer=" + ts_muxer + "&httpts_password_enable=" + httpts_password_enable + "&slice_split_enable=" + slice_split_enable + "&slice_split_size=" + slice_split_size + "&min_qp=" + min_qp + "&max_qp=" + max_qp + "&ts_transport_stream_id=" + ts_transport_stream_id + "&ts_pmt_start_pid=" + ts_pmt_start_pid + "&ts_start_pid=" + ts_start_pid + "&ts_tables_version=" + ts_tables_version + "&ts_rc_mode=" + ts_rc_mode + "&ts_service_name=" + ts_service_name + "&ts_service_provider=" + ts_service_provider + "&vmix_compatible=" + vmix_compatible + "&net_packet_drop_threshold=" + net_packet_drop_threshold + "&video_only=" + video_only + "&audio_only=" + audio_only + "&udp_private_package_size=" + udp_private_package_size;
+				$.ajax({
+					url: urlstr,
+					dataType: "text",
+					cache: false,
+					success: function (data) {
+						if (data == "succeed") {
+							num = 0;
+						}
+						else {
+							num = 1;
+						}
+					}
+				});
+				$.ajax({
+					url: "http://" + hostip + "/set_sys?ts_over_rtsp=" + ts_over_rtsp + "&rtp_multicast=" + rtp_multicast + "&udp_ttl=" + udp_ttl,
+					dataType: "text",
+					cache: false,
+					success: function (data) {
+						if (data == "succeed") {
+							num += 0;
+						}
+						else {
+							num += 1;
+						}
+					}
+				});
+				if (num == 0) {
+					alert('Set successfully, please restart your device!');
+				}
+				else {
+					alert('Failed to set!');
+				}
+			}
+
+		}
+		function OnSelectVideoAndAudioOnly(type) {
+			var video_only = $("#only_video_enable").val();
+			var audio_only = $("#only_audio_enable").val();
+			if (type == 0 && video_only == 1) { //video
+				$("#only_audio_enable").attr("value", 0);
+			}
+			else if (type == 1 && audio_only == 1) {
+				$("#only_video_enable").attr("value", 0);
+			}
+		}
+		function IsValidateCSC(csc_contrast) {
+			validated = true;
+			var Intcsc_contrast = IsInteger(csc_contrast);
+			if (csc_contrast == "") {
+				alert('Set the content cannot be empty!');
+				validated = false;
+			}
+			else if (csc_contrast < 0 || csc_contrast > 255 || Intcsc_contrast == false) {
+				alert('Contrast value should be an integer in 0-255!');
+				validated = false;
+			}
+			return validated;
+		}
+		function IsValidate(ts_once, slice_split_size, min_qp, max_qp, ts_transport_stream_id, ts_pmt_start_pid, ts_start_pid, ts_tables_version, ts_service_name, ts_service_provider, net_packet_drop_threshold) {
+			validated = true;
+			min_qp = parseInt(min_qp);
+			max_qp = parseInt(max_qp);
+			var IntTs_once = IsInteger(ts_once);
+			var IntTs_transport_stream_id = IsInteger(ts_transport_stream_id);
+			var IntTs_pmt_start_pid = IsInteger(ts_pmt_start_pid);
+			var IntTs_start_pid = IsInteger(ts_start_pid);
+			var IntTs_tables_version = IsInteger(ts_tables_version);
+			var IntSlice_split_size = IsInteger(slice_split_size);
+			var IntNet_packet_drop_threshold = IsInteger(net_packet_drop_threshold);
+			var IntMin_qp = IsInteger(min_qp);
+			var IntMax_qp = IsInteger(max_qp);
+			var udp_ttl = $("#udp_ttl").val();
+			var IntUdp_ttl = IsInteger(udp_ttl);
+
+            var udp_private_package_size = $("#udp_private_package_size").val();
+            var IntUdp_private_package_size = IsInteger(udp_private_package_size);
+
+			if (net_packet_drop_threshold == "" || ts_once == "" || slice_split_size == "" || ts_service_name == "" || ts_service_provider == "" || min_qp == "" || max_qp == "" || udp_ttl == "" || udp_private_package_size == "") {
+				alert('Set the content cannot be empty!');
+				validated = false;
+			}
+			else if (net_packet_drop_threshold < 50 || net_packet_drop_threshold > 50000 || IntNet_packet_drop_threshold == false) {
+				alert('Net Drop Threshold value should be an integer in 50-50000!');
+				validated = false;
+			}
+			else if (ts_once < 3 || ts_once > 128 || IntTs_once == false) {
+				alert('TS once pack  value should be an integer in 3-128!');
+				validated = false;
+			}
+			else if (ts_transport_stream_id < 1 || ts_transport_stream_id > 65535 || IntTs_transport_stream_id == false) {
+				alert('ts_transport_stream_id value should be an integer in 1-65535!');
+				validated = false;
+			}
+			else if (ts_pmt_start_pid < 16 || ts_pmt_start_pid > 7936 || IntTs_pmt_start_pid == false) {
+				alert('ts_pmt_start_pid value should be an integer in 16-7936!');
+				validated = false;
+			}
+			else if (ts_start_pid < 32 || ts_start_pid > 3840 || IntTs_start_pid == false) {
+				alert('ts_start_pid value should be an integer in 32-3840');
+				validated = false;
+			}
+			else if (ts_tables_version < 0 || ts_tables_version > 31 || IntTs_tables_version == false) {
+				alert('ts_tables_version value should be an integer in 0-31');
+				validated = false;
+			}
+			else if (slice_split_size < 128 || slice_split_size > 65535 || IntSlice_split_size == false) {
+				alert('Slice size value should be an integer in 128-65535!');
+				validated = false;
+			}
+			else if (min_qp < 1 || min_qp > 35 || IntMin_qp == false) {
+				alert('MIN_QP value should be an integer in 1-35!');
+				validated = false;
+			}
+			else if (max_qp <= min_qp || max_qp > 50 || IntMax_qp == false) {
+				alert('MAX_QP should >MIN_QP and <= 50!');
+				validated = false;
+			}
+			else if (udp_ttl < 1 || udp_ttl > 254 || IntUdp_ttl == false) {
+				alert('UDP TTL value should be an integer in 1-254!')
+				validated = false;
+			}
+            else if(udp_private_package_size < 600 || udp_private_package_size > 1048576 || IntUdp_private_package_size == false){
+                alert('UDP PTL Package Size value should be an integer 0-1048576!');
+				validated = false;
+            }
+			return validated;
+		}
+		function IsInteger(interger) {
+			var IsInteger = true;
+			if (parseInt(interger) == interger) {
+				IsInteger = true;
+			}
+			else {
+				IsInteger = false;
+			}
+			return IsInteger;
+		}
+		function IsValidate_ResetTime(schedule_restart_enable, schedule_restart_time, schedule_restart_left) {
+			validated = true;
+			if (schedule_restart_enable == 1) {
+				schedule_restart_time = parseInt(schedule_restart_time);
+				schedule_restart_left = parseInt(schedule_restart_left);
+				var Intschedule_restart_left = IsInteger(schedule_restart_left);
+				var Intschedule_restart_time = IsInteger(schedule_restart_time);
+				if (schedule_restart_time < 10 || Intschedule_restart_time == false) {
+					alert('Restart time should be >10!');
+					validated = false;
+				}
+				else if (schedule_restart_left < 10 || Intschedule_restart_left == false) {
+					alert('Restart left should be >10!');
+					validated = false;
+				}
+			}
+			return validated;
+		}
+
+		function SetResetTime() {
+			var schedule_restart_enable = $("#schedule_restart_enable").val();
+			var schedule_restart_time = $("#schedule_restart_time").val();
+			var schedule_restart_left = $("#schedule_restart_left").val();
+			var validated = IsValidate_ResetTime(schedule_restart_enable, schedule_restart_time, schedule_restart_left);
+			if (validated == true) {
+				$.ajax({
+					type: "GET",
+					url: "http://" + hostip + "/set_adv?schedule_restart_enable=" + schedule_restart_enable + "&schedule_restart_time=" + schedule_restart_time + "&schedule_restart_left=" + schedule_restart_left,
+					dataType: "text",
+					cache: false,
+					success: function (data) {
+						if (data == "succeed") {
+							alert('Set succeed!');
+						}
+						else {
+							alert('Set failed!');
+						}
+					}
+				});
+			}
+		}
+		function GetResetTime() {
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_adv",
+				dataType: "text",
+				cache: false,
+				success: function (data) {
+					var schedule_restart_enable = $(data).find("schedule_restart_enable").text();
+					var schedule_restart_time = $(data).find("schedule_restart_time").text();
+					var schedule_restart_left = $(data).find("schedule_restart_left").text();
+					$("#schedule_restart_enable").attr("value", schedule_restart_enable);
+					$("#schedule_restart_time").attr("value", schedule_restart_time);
+					$("#schedule_restart_left").attr("value", schedule_restart_left);
+				}
+			});
+		}
+
+		function changeLan() {
+			var Language = $("#LanSle").val();
+			if (Language == 'Chinese') {
+				$.ajax({
+
+					type: "GET",
+					url: "http://" + hostip + "/set_sys?language=chinese",
+					dataType: "text",
+					cache: false
+				});
+				window.location.href = 'AdvancSet.html';
+			}
+		}
+
+	</SCRIPT>
+	<META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onLoad="GetAdvaced()">
+	<DIV id="body-wrapper">
+		<DIV id="sidebar">
+			<DIV id="sidebar-wrapper">
+				<H1 id="sidebar-title">
+					<A href="#">H.264 Encoder</A>
+				</H1>
+				<!-- Logo (221px wide) -->
+				<A href="#">
+					<IMG id="logo" alt="H.264 Encoder" src="images/logo.png" border="0">
+				</A>
+				<!-- Sidebar Profile links -->
+				<UL id="main-nav">
+					<!-- Accordion Menu -->
+					<LI>
+						<A class="nav-top-item no-submenu " href="indexE.html">Status</A>
+					</LI>
+					<LI>
+						<A class="nav-top-item current" href="OutputP1MainE.html">Encoder</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainE.html">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1E.html">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2E.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3E.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="AudioEncodSetE.html">Audio</A>
+							</LI>
+							<LI>
+								<A href="AdvancSetE.html" class="current">Advanced</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1MainOsdE.html">OSD</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainOsdE.html">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1OsdE.html">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2OsdE.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3OsdE.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="UplogoE.html">LOGO Upload</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="SetNetE.html">System</A>
+						<UL>
+							<LI>
+								<A href="SetNetE.html">Network</A>
+							</LI>
+							<LI id="wifi">
+								<A href="WifiSetE.html">WIFI</A>
+							</LI>
+							<LI id="g4">
+								<A href="g4SetE.html">4G</A>
+							</LI>
+							<LI>
+								<A href="SetPasswordE.html">Password</A>
+							</LI>
+							<LI>
+								<A href="RemserialE.html">Serial to TCP</A>
+							</LI>
+							<LI>
+								<A href="SystemUpdateE.html">Upgrade</A>
+							</LI>
+							<LI>
+								<A href="ResetE.html">Reset</A>
+							</LI>
+							<LI>
+								<A href="RebootE.html">Reboot</A>
+							</LI>
+							<LI>
+								<A href="RestartE.html">Schedule Restart</A>
+							</LI>
+						</UL>
+					</LI>
+				</UL>
+			</DIV>
+		</DIV>
+		<!-- End #sidebar -->
+		<DIV id="main-content">
+			<!-- Main Content Section with everything -->
+			<div style="float:right; margin-right:0px; margin-top:-10px;">
+				<p>Language:&nbsp;
+					<select id='LanSle' onChange="changeLan()">
+						<option value="Chinese">Chinese</option>
+					
+						<option value="English" selected="selected">English</option>
+					</select>
+				</p>
+			</div>
+			<!-- End .shortcut-buttons-set -->
+			<DIV class="clear"></DIV>
+			<!-- End .clear -->
+
+			<DIV class="content-box">
+				<!-- Start Content Box -->
+				<DIV class="content-box-header">
+					<H3>Advanced</H3>
+				</DIV>
+				<!-- End .content-box-header -->
+				<DIV class="content-box-content">
+					<DIV class="tab-content">
+						<div class="write">
+							<dl>
+								<dt>Video Only:</dt>
+								<dd>
+									<select id="only_video_enable" name="only_video_enable" onchange="OnSelectVideoAndAudioOnly(0)">
+										<option value="0">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>Audio Only:</dt>
+								<dd>
+									<select id="only_audio_enable" name="only_audio_enable" onchange="OnSelectVideoAndAudioOnly(1)">
+										<option value="0">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+
+							<dl>
+								<dt>Deinterlaced:</dt>
+								<dd>
+									<select id="interlaced_only_bottom" name="interlaced_only_bottom">
+										<option value="0" selected="selected">Both</option>
+										<option value="1">Bottom Only</option>
+										<option value="2">Field To Frame</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>TS Muxer:</dt>
+								<dd>
+									<select id="ts_muxer" name="ts_muxer">
+										<option value="0" selected="selected">Compatible with VLC </option>
+										<option value="1">Compatible with FFMPEG</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>Net Drop Threshold:</dt>
+								<dd>
+									<input id="net_packet_drop_threshold" name="net_packet_drop_threshold" maxlength="8" size="12" type="text" /> [50-50000]
+								</dd>
+							</dl>
+
+							<dl>
+								<dt>TS Once Pack:</dt>
+								<dd>
+									<input id="ts_once" name="ts_once" maxlength="4" size="12" type="text" /> [3-128]
+								</dd>
+							</dl>
+							<dl>
+								<dt>ts_transport_stream_id:</dt>
+								<dd>
+									<input id="ts_transport_stream_id" name="ts_transport_stream_id" maxlength="6" size="12" type="text" /> [1-65535]
+								</dd>
+							</dl>
+							<dl>
+								<dt>ts_pmt_start_pid:</dt>
+								<dd>
+									<input id="ts_pmt_start_pid" name="ts_pmt_start_pid" maxlength="4" size="12" type="text" /> [16-7936]
+								</dd>
+							</dl>
+							<dl>
+								<dt>ts_start_pid:</dt>
+								<dd>
+									<input id="ts_start_pid" name="ts_start_pid" maxlength="4" size="12" type="text" /> [32-3840]
+								</dd>
+							</dl>
+							<dl>
+								<dt>ts_tables_version:</dt>
+								<dd>
+									<input id="ts_tables_version" name="ts_tables_version" maxlength="4" size="12" type="text" /> [0-31]
+								</dd>
+							</dl>
+							<dl>
+								<dt>ts_service_name:</dt>
+								<dd>
+									<input id="ts_service_name" name="ts_service_name" maxlength="256" size="12" type="text" />
+								</dd>
+							</dl>
+							<dl>
+								<dt>ts_service_provider:</dt>
+								<dd>
+									<input id="ts_service_provider" name="ts_service_provider" maxlength="256" size="12" type="text" />
+								</dd>
+							</dl>
+							<dl>
+								<dt>TS Empty Packet:</dt>
+								<dd>
+									<select id="ts_rc_mode" name="ts_rc_mode">
+										<option value="0">No Insert</option>
+										<option value="12">Insert(1.2x)</option>
+										<option value="13">Insert(1.3x)</option>
+										<option value="15">Insert(1.5x)</option>
+										<option value="20">Insert(2x)</option>
+										<option value="25">Insert(2.5x)</option>
+										<option value="30">Insert(3x)</option>
+										<option value="35">Insert(3.5x)</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>TS Password Enable:</dt>
+								<dd>
+									<select id="httpts_password_enable" name="httpts_password_enable">
+										<option value="0">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>Vmix Compatible:</dt>
+								<dd>
+									<select id="vmix_compatible" name="vmix_compatible">
+										<option value="0">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>TS Over RTSP:</dt>
+								<dd>
+									<select id="ts_over_rtsp" name="ts_over_rtsp">
+										<option value="0" selected="selected">ES</option>
+										<option value="1">TS</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>Multicast Type:</dt>
+								<dd>
+									<select id="rtp_multicast" name="rtp_multicast">
+										<option value="1" selected="selected">RTP</option>
+										<option value="0">UDP</option>
+										<option value="3">PTL</option>
+									</select>
+								</dd>
+							</dl>
+                            <dl>
+								<dt>UDP TTL:</dt>
+								<dd>
+									<input id="udp_ttl" name="udp_ttl" maxlength="5" size="12" type="text" /> [1-254]
+								</dd>
+							</dl>
+                            <dl>
+								<dt>UDP PTL Package Size:</dt>
+								<dd>
+									<input id="udp_private_package_size" name="udp_private_package_size" maxlength="5" size="12" type="text" /> [600-1048576]
+								</dd>
+							</dl>
+							<dl>
+								<dt>Slice Split Enable:</dt>
+								<dd>
+									<select id="slice_split_enable" name="slice_split_enable">
+										<option value="0">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>Slice Size:</dt>
+								<dd>
+									<input id="slice_split_size" name="slice_split_size" maxlength="5" size="12" type="text" /> [128-65535]
+								</dd>
+							</dl>
+							<dl>
+								<dt>MIN_QP:</dt>
+								<dd>
+									<input id="min_qp" name="min_qp" maxlength="5" size="12" type="text" /> [1-35]
+								</dd>
+							</dl>
+							<dl>
+								<dt>MAX_QP:</dt>
+								<dd>
+									<input id="max_qp" name="max_qp" maxlength="5" size="12" type="text" /> (MIN_QP-50]
+								</dd>
+							</dl>
+							<dl>
+								<dt>&nbsp;&nbsp;</dt>
+								<dd>
+									<input type="button" class="but" value="Apply" name="insert" onclick="SetAdvanced()" id="subBut" />
+								</dd>
+							</dl>
+
+						</div>
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+					</DIV>
+
+
+					<!-- End #tab2 -->
+				</DIV>
+				<!-- End .content-box-content -->
+			</DIV>
+			<!-- End .content-box -->
+			<!-- Start Notifications -->
+			<DIV class="content-box">
+				<DIV class="content-box-header">
+					<H3>CSC</H3>
+				</DIV>
+				<!-- End .content-box-header -->
+				<DIV class="content-box-content">
+					<DIV class="tab-content">
+						<div class="write">
+							<dl>
+								<dt>CSC:</dt>
+								<dd>
+									<select id="csc_enable" name="csc_enable">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>Contrast:</dt>
+								<dd>
+									<input id="csc_contrast" name="csc_contrast" maxlength="7" size="10" type="text" /> [0-255],Default:64
+
+
+								</dd>
+							</dl>
+
+							<dl>
+								<dt>&nbsp;&nbsp;</dt>
+								<dd>
+									<input type="button" class="but" value="Apply" name="insert" onclick="SetCSC()" id="subBut" />
+								</dd>
+							</dl>
+
+						</div>
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+					</DIV>
+					<!-- End #tab2 -->
+				</DIV>
+
+				<!-- End .content-box-content -->
+			</DIV>
+			<!-- End .content-box -->
+			<!-- Start Notifications -->
+
+
+			<!-- End #main-content -->
+</BODY>
+
+</HTML>

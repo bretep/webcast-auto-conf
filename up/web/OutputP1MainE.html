@@ -1,0 +1,629 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+	<TITLE>H.264 Encoder</TITLE>
+	<!--    CSS   -->
+	<!-- Reset Stylesheet -->
+	<LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+	<SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+	<SCRIPT type="text/javascript">
+		var hostip = window.location.host;
+		var num = 0;
+		function GetInputAjax() {
+			ShowWifi();
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_output?input=0&output=0",
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+                    var venc_codec_supported = $(data).find("venc_codec_supported").text();
+                    var venc_codec_words = venc_codec_supported.split(',');
+                    for(var i = 0; i < venc_codec_words.length; ++i) {
+                        var codec_val = 96;
+                        if(venc_codec_words[i] == "H.264"){
+                            codec_val = 96;
+                        }
+                        else if(venc_codec_words[i] == "H.265"){
+                            codec_val = 265;
+                        }
+                        else if(venc_codec_words[i] == "MJPEG"){
+                            codec_val = 1002;
+                        }
+                        $("#venc_codec").append("<option value='" + codec_val+"'>" + venc_codec_words[i] + "</option>");
+                    }
+
+					var venc_framerate = $(data).find("venc_framerate").text();
+					$("#venc_framerateTxt").attr("value", venc_framerate);
+
+					var venc_gop = $(data).find("venc_gop").text();
+					$("#venc_gopTxt").attr("value", venc_gop);
+					var venc_width_height_same_as_input = $(data).find("venc_width_height_same_as_input").text();
+
+					var width = $(data).find("vi_cap_width").text();
+					var height = $(data).find("vi_cap_height").text();
+					var des_width = $(data).find("venc_width").text();
+					var des_height = $(data).find("venc_height").text();
+					var VideoSizehtml = GetVideoSize(venc_width_height_same_as_input, width, height, des_width, des_height);
+					$("#Videosize").html(VideoSizehtml);
+
+					var venc_profile = $(data).find("venc_profile").text();
+					$("#venc_profile").attr("value", venc_profile);
+
+					var http_ts_uri = $(data).find("http_ts_uri").text();
+					$("#http_ts_uriTxt").attr("value", http_ts_uri);
+
+					var http_ts_enable = $(data).find("http_ts_enable").text();
+					$("#http_ts_enableSle").attr("value", http_ts_enable);
+
+					var http_flv_uri = $(data).find("http_flv_uri").text();
+					$("#http_flv_uriTxt").attr("value", http_flv_uri);
+
+					var http_flv_enable = $(data).find("http_flv_enable").text();
+					$("#http_flv_enableSle").attr("value", http_flv_enable);
+
+					var rtsp_uri = $(data).find("rtsp_uri").text();
+					$("#rtsp_uriTxt").attr("value", rtsp_uri);
+
+					var rtsp_enable = $(data).find("rtsp_enable").text();
+					$("#rtsp_enableSle").attr("value", rtsp_enable);
+
+					var rtmp_uri = $(data).find("rtmp_uri").text();
+					$("#rtmp_uriTxt").attr("value", rtmp_uri);
+
+					var rtmp_enable = $(data).find("rtmp_enable").text();
+					$("#rtmp_enableSle").attr("value", rtmp_enable);
+
+					var rtmp_publish_uri = $(data).find("rtmp_publish_uri").text();
+					$("#rtmp_publish_uri").attr("value", rtmp_publish_uri);
+
+					var rtmp_publish_enable = $(data).find("rtmp_publish_enable").text();
+					$("#rtmp_publish_enableSle").attr("value", rtmp_publish_enable);
+
+					var http_hls_uri = $(data).find("http_hls_uri").text();
+					$("#http_hls_uriTxt").attr("value", http_hls_uri);
+					var http_hls_enable = $(data).find("http_hls_enable").text();
+					$("#http_hls_enableSle").attr("value", http_hls_enable);
+					var multicast_enable = $(data).find("multicast_enable").text();
+					$("#multicast_enable").attr("value", multicast_enable);
+					var multicast_ip = $(data).find("multicast_ip").text();
+					$("#multicast_ip").attr("value", multicast_ip);
+					var multicast_port = $(data).find("multicast_port").text();
+					$("#multicast_port").attr("value", multicast_port);
+
+                    var venc_codec = $(data).find("venc_codec").text();
+					$("#venc_codec").attr("value", venc_codec);
+					SetType();
+
+                    var ts_muxrate = $(data).find("ts_muxrate").text();
+                    var venc_rc_mode = $(data).find("venc_rc_mode").text();
+                    var venc_bitrate = $(data).find("venc_bitrate").text();
+                    if(ts_muxrate != "0" && ts_muxrate != "") {
+                        venc_rc_mode = "5";
+                        venc_bitrate = ts_muxrate;
+                    }
+                    $("#venc_rc_modeSle").attr("value", venc_rc_mode);
+                    $("#venc_bitrateTxt").attr("value", venc_bitrate); 
+				}
+			});
+		}
+
+        function OnSelectRtmpType(type)
+        {
+            var rtmp_enable = $("#rtmp_enableSle").val();
+            var rtmp_publish_enable = $("#rtmp_publish_enableSle").val();
+            if(type == 0 && rtmp_enable == 1){
+                $("#rtmp_publish_enableSle").attr("value", 0);
+            }
+            else if(type == 1 && rtmp_publish_enable == 1){
+                $("#rtmp_enableSle").attr("value", 0);
+            }
+        }
+
+        function SetType() {
+			var venc_codec = $("#venc_codec").val();
+			if (venc_codec == "96") {
+				$("#venc_profile_div").show();
+                $("#venc_gop_div").show();
+                $("#venc_rc_modeSle option[value='5']").remove();
+                $("#venc_rc_modeSle").append("<option value='5'>strong cbr</option>");
+			}
+			else if (venc_codec == "265"){
+                $("#venc_gop_div").show();
+				$("#venc_profile_div").hide();
+                $("#venc_rc_modeSle option[value='5']").remove();
+                $("#venc_rc_modeSle").append("<option value='5'>strong cbr</option>");
+			}
+			else if (venc_codec == "1002"){
+                $("#venc_gop_div").hide();
+				$("#venc_profile_div").hide();
+                $("#venc_rc_modeSle option[value='5']").remove();
+			}
+		}
+
+		function SetInput() {
+			var venc_framerate = $("#venc_framerateTxt").val();
+			var venc_gop = $("#venc_gopTxt").val();
+			var videosize = $("#VideosizeSle").val();
+			var venc_width = videosize.split('x')[0];
+			var venc_height = videosize.split('x')[1];
+			var venc_width_height_same_as_input = 0;
+			if (venc_width == "0" && venc_height == "0") {
+				venc_width_height_same_as_input = 1;
+			}
+			var venc_rc_mode = $("#venc_rc_modeSle").val();
+			var venc_bitrate = $("#venc_bitrateTxt").val();
+			var venc_profile = $("#venc_profile").val();
+			var http_ts_uri = $("#http_ts_uriTxt").val();
+            var http_ts_enable = $("#http_ts_enableSle").val();
+            var http_hls_uri = $("#http_hls_uriTxt").val();
+			var http_hls_enable = $("#http_hls_enableSle").val();
+			var http_flv_uri = $("#http_flv_uriTxt").val();
+            var http_flv_enable = $("#http_flv_enableSle").val();
+			var rtsp_uri = $("#rtsp_uriTxt").val();
+            var rtsp_enable = $("#rtsp_enableSle").val();
+            var rtmp_uri = $("#rtmp_uriTxt").val();
+            var rtmp_enable = $("#rtmp_enableSle").val();
+			var rtmp_publish_uri = $("#rtmp_publish_uri").val();
+			var rtmp_publish_enable = $("#rtmp_publish_enableSle").val();
+			rtmp_publish_uri = encodeURIComponent(rtmp_publish_uri);			
+			var multicast_enable = $("#multicast_enable").val();
+			var multicast_ip = $("#multicast_ip").val();
+			var multicast_port = $("#multicast_port").val();
+            var venc_codec = $("#venc_codec").val();
+			var validated = IsValidate(venc_framerate, venc_gop, venc_bitrate, http_ts_uri, http_flv_uri, rtsp_uri, rtmp_publish_uri, http_hls_uri, multicast_ip, multicast_port, http_hls_enable);
+
+			if (validated == true) {
+                var uri = "http://" + hostip + "/set_output?input=0&output=0&venc_framerate=" + venc_framerate + "&venc_gop=" + venc_gop + "&venc_width=" + venc_width + "&venc_height=" + venc_height + "&venc_bitrate=" + venc_bitrate + "&http_ts_uri=" + http_ts_uri + "&http_flv_uri=" + http_flv_uri + "&rtsp_uri=" + rtsp_uri + "&rtmp_enable=" + rtmp_enable + "&rtmp_uri=" + rtmp_uri + "&rtmp_publish_uri=" + rtmp_publish_uri + "&rtmp_publish_enable=" + rtmp_publish_enable + "&http_ts_enable=" + http_ts_enable + "&http_flv_enable=" + http_flv_enable + "&rtsp_enable=" + rtsp_enable + "&venc_profile=" + venc_profile + "&http_hls_uri=" + http_hls_uri + "&http_hls_enable=" + http_hls_enable + "&venc_width_height_same_as_input=" + venc_width_height_same_as_input + "&multicast_ip=" + multicast_ip + "&multicast_port=" + multicast_port + "&multicast_enable=" + multicast_enable + "&venc_codec=" + venc_codec;
+                if(venc_rc_mode == "5"){
+                    uri += "&ts_muxrate=" + venc_bitrate;
+                }
+                else{
+                    uri += "&venc_rc_mode=" + venc_rc_mode + "&ts_muxrate=0";
+                }
+
+				$.ajax({
+					url: uri,
+
+					dataType: "text",
+					cache: false,
+					success: function (data) {
+						if (data == "succeed") {
+							alert('Set successfully, please restart your device!');
+						}
+						else {
+							alert('Failed to set!');
+						}
+					}
+				});
+			}
+		}
+
+		function IsValidate(venc_framerate, venc_gop, venc_bitrate, http_ts_uri, http_flv_uri, rtsp_uri, rtmp_publish_uri, http_hls_uri, multicast_ip, multicast_port, http_hls_enable) {
+			validated = true;
+			var IntVenc_framerate = IsInteger(venc_framerate);
+			var IntVenc_gop = IsInteger(venc_gop);
+			var IntVenc_bitrate = IsInteger(venc_bitrate);
+			var IntMulticast_port = IsInteger(multicast_port);
+            var rtmp_uri = $("#rtmp_uriTxt").val();
+			if (venc_framerate == "" || venc_gop == "" || venc_bitrate == "" || http_ts_uri == "" || http_flv_uri == "" || rtsp_uri == "" || rtmp_publish_uri == "" || http_hls_uri == "" || multicast_ip == "" || multicast_port == "" || rtmp_uri == "") {
+				alert('Set the content cannot be empty!');
+				validated = false;
+			}
+			else if (venc_framerate < 5 || venc_framerate > 60 || IntVenc_framerate == false) {
+				alert('Coding frame rate value should be an integer in 5-60!');
+				validated = false;
+			}
+			else if (venc_gop < 5 || venc_gop > 300 || IntVenc_gop == false) {
+				alert('Key interval(frames) value should be an integer in 5-300!');
+				validated = false;
+			}
+
+			/*else if (checkDress(rtmp_publish_uri)) {
+				alert('RTMP URL must start with "rtmp://" at the beginning!');
+				validated = false;
+			}
+			else if (!checkIp(multicast_ip)) {
+				alert('Multicast IP format is not correct!');
+				validated = false;
+			}*/
+			else if (multicast_port < 1 || multicast_port > 65535 || IntMulticast_port == false) {
+				alert('Multicast port should be integer in 1-65535!');
+				return false;
+			}
+			else if (http_hls_enable == 0) {
+				if (venc_bitrate < 32 || venc_bitrate > 32000 || IntVenc_bitrate == false) {
+					alert('Bitrate(kbit) value should be an integer in 32-32000!');
+					validated = false;
+				}
+			}
+			else if (http_hls_enable == 1) {
+				if (venc_bitrate < 32 || venc_bitrate > 8000 || IntVenc_bitrate == false) {
+					alert('If HLS is open,Bitrate(kbit) value should be an integer in 32-8000!');
+					validated = false;
+				}
+			}
+			return validated;
+		}
+
+		function IsInteger(interger) {
+			var IsInteger = true;
+			if (parseInt(interger) == interger) {
+				IsInteger = true;
+			}
+			else {
+				IsInteger = false;
+			}
+			return IsInteger;
+		}
+
+		//判断IP
+		function checkIp(str) {
+			var ss = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+			return ss.test(str);
+		}
+		//判断路径
+		function checkDress(str) {
+			var result = true;
+			str = str.substr(0, 7);
+			if (str == "rtmp://") {
+				result = false;
+			}
+			else {
+				result = true;
+			}
+			return result;
+		}
+
+		function GetVideoSize(venc_width_height_same_as_input, width, height, des_width, des_height) {
+			var arrWidthTxt = "";
+			var IsSlected = 0;
+			var result = '<select id="VideosizeSle" name="select_big">';
+			width = parseInt(width);
+			var arrWidth = new Array('0x0', '1920x1080', '1680x1056', '1280x720', '1024x768', '1024x576', '850x480', '720x576', '720x540', '720x480', '720x404', '704x576', '640x480', '640x360', '608x448', '544x480', '480x480', '480x384', '480x360', '480x320', '480x272', '480x270', '400x320', '400x224', '352x480', '352x228', '320x256', '320x240', '320x180', '240x180');
+			var j = 0;
+			if (venc_width_height_same_as_input == "1") {
+				arrWidthTxt = "same as the input";
+				result += '<option value="' + arrWidth[0] + '" selected ="selected">' + arrWidthTxt + '</option>';
+				IsSlected = 1;
+				j = 1;
+			}
+			for (var i = j; i < arrWidth.length; i++) {
+				if (arrWidth[i] == "0x0") {
+					arrWidthTxt = "same as the input";
+				}
+				else {
+					arrWidthTxt = arrWidth[i];
+				}
+
+				if (IsSlected == 1) {
+					result += '<option value="' + arrWidth[i] + '">' + arrWidthTxt + '</option>';
+				}
+				else {
+					var str_before = arrWidth[i].split('x')[0];
+					str_before = parseInt(str_before);
+					var str_after = arrWidth[i].split('x')[1];
+					str_after = parseInt(str_after);
+					//  if(width>=str_before)
+					// {
+					if (des_width == str_before && des_height == str_after) {
+						result += '<option value="' + arrWidth[i] + '" selected ="selected">' + arrWidthTxt + '</option>';
+						IsSlected = 1;
+					}
+					else {
+						result += '<option value="' + arrWidth[i] + '">' + arrWidthTxt + '</option>';
+					}
+					//  }
+				}
+			}
+
+			result += '</select>';
+			return result;
+		}
+		function changeLan() {
+			var Language = $("#LanSle").val();
+			if (Language == 'Chinese') {
+				$.ajax({
+					type: "GET",
+					url: "http://" + hostip + "/set_sys?language=chinese",
+					dataType: "text",
+					cache: false
+				});
+				window.location.href = 'OutputP1Main.html';
+			}
+		}
+
+	</SCRIPT>
+	<META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onLoad="GetInputAjax()">
+	<DIV id="body-wrapper">
+		<DIV id="sidebar">
+			<DIV id="sidebar-wrapper">
+				<H1 id="sidebar-title">
+					<A href="#">H.264 Encoder</A>
+				</H1>
+				<!-- Logo (221px wide) -->
+				<A href="#">
+					<IMG id="logo" alt="H.264 Encoder" src="images/logo.png" border="0">
+				</A>
+				<!-- Sidebar Profile links -->
+				<UL id="main-nav">
+					<!-- Accordion Menu -->
+					<LI>
+						<A class="nav-top-item no-submenu " href="indexE.html">Status</A>
+					</LI>
+					<LI>
+						<A class="nav-top-item current" href="OutputP1MainE.html">Encoder</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainE.html" class="current">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1E.html">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2E.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3E.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="AudioEncodSetE.html">Audio</A>
+							</LI>
+							<LI>
+								<A href="AdvancSetE.html">Advanced</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1MainOsdE.html">OSD</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainOsdE.html">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1OsdE.html">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2OsdE.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3OsdE.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="UplogoE.html">LOGO Upload</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="SetNetE.html">System</A>
+						<UL>
+							<LI>
+								<A href="SetNetE.html">Network</A>
+							</LI>
+							<LI id="wifi">
+								<A href="WifiSetE.html">WIFI</A>
+							</LI>
+							<LI id="g4">
+								<A href="g4SetE.html">4G</A>
+							</LI>
+							<LI>
+								<A href="SetPasswordE.html">Password</A>
+							</LI>
+							<LI>
+								<A href="RemserialE.html">Serial to TCP</A>
+							</LI>
+							<LI>
+								<A href="SystemUpdateE.html">Upgrade</A>
+							</LI>
+							<LI>
+								<A href="ResetE.html">Reset</A>
+							</LI>
+							<LI>
+								<A href="RebootE.html">Reboot</A>
+							</LI>
+							<LI>
+								<A href="RestartE.html">Schedule Restart</A>
+							</LI>
+						</UL>
+					</LI>
+				</UL>
+			</DIV>
+		</DIV>
+		<!-- End #sidebar -->
+		<DIV id="main-content">
+			<!-- Main Content Section with everything -->
+			<div style="float:right; margin-right:0px; margin-top:-10px;">
+				<p>Language:&nbsp;
+					<select id='LanSle' onChange="changeLan()">
+						<option value="Chinese">Chinese</option>
+
+						<option value="English" selected="selected">English</option>
+					</select>
+				</p>
+			</div>
+			<!-- End .shortcut-buttons-set -->
+			<DIV class="clear"></DIV>
+			<!-- End .clear -->
+
+			<DIV class="content-box">
+				<!-- Start Content Box -->
+				<DIV class="content-box-header">
+					<H3>Main stream</H3>
+				</DIV>
+				<!-- End .content-box-header -->
+				<DIV class="content-box-content">
+					<DIV class="tab-content">
+
+
+						<div class="write">
+                            <dl>
+                                <dt>Encoding Type:</dt>
+                                <dd>
+                                    <select name="venc_codec" id="venc_codec" onChange="SetType()">
+                                    </select>
+                                </dd>
+                            </dl>
+							<dl>
+								<dt>FPS:</dt>
+								<dd>
+									<input id="venc_framerateTxt" name="venc_framerateTxt" maxlength="18" size="36" type="text" /> [5-60]
+								</dd>
+							</dl>
+
+							<dl id="venc_gop_div">
+								<dt>GOP:</dt>
+								<dd>
+									<input id="venc_gopTxt" name="venc_gopTxt" maxlength="18" size="36" type="text" /> [5-300]
+								</dd>
+							</dl>
+							<dl>
+								<dt>Bitrate(kbit):</dt>
+								<dd>
+									<input id="venc_bitrateTxt" name="venc_bitrateTxt" maxlength="18" size="36" type="text" /> [32-32000]
+								</dd>
+							</dl>
+							<dl>
+								<dt> Encoded Size:</dt>
+								<dd id="Videosize">
+								</dd>
+							</dl>
+							<dl id="venc_profile_div">
+								<dt>H.264 Level:</dt>
+								<dd>
+									<select id="venc_profile" name="venc_profile">
+										<option value="0" selected="selected">baseline profile</option>
+										<option value="1">main profile</option>
+										<option value="2">high profile</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>Bitrate Control:</dt>
+								<dd>
+									<select id="venc_rc_modeSle" name="venc_rc_modeSle">
+										<option value="0" selected="selected">cbr</option>
+										<option value="1">vbr</option>
+									</select>
+								</dd>
+							</dl>
+							<dl></dl>
+							<dl class="line2"></dl>
+							<dl>
+								<dt>TS URL:</dt>
+								<dd>
+									<input id="http_ts_uriTxt" name="http_ts_uriTxt" maxlength="128" size="36" type="text" />
+									<select id="http_ts_enableSle" name="http_ts_enableSle">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+
+								</dd>
+							</dl>
+							<dl>
+								<dt>HLS URL:</dt>
+								<dd>
+									<input id="http_hls_uriTxt" name="http_hls_uriTxt" maxlength="128" size="36" type="text" />
+									<select id="http_hls_enableSle" name="http_hls_enableSle">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+
+								</dd>
+							</dl>
+							<dl>
+								<dt>FLV URL:</dt>
+								<dd>
+									<input id="http_flv_uriTxt" name="http_flv_uriTxt" maxlength="128" size="36" type="text" />
+									<select id="http_flv_enableSle" name="http_flv_enableSle">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>RTSP URL:</dt>
+								<dd>
+									<input id="rtsp_uriTxt" name="rtsp_uriTxt" maxlength="128" size="36" type="text" />
+									<select id="rtsp_enableSle" name="rtsp_enableSle">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+                            <dl>
+                                <dt>RTMP URL:</dt>
+                                <dd>
+                                    <input id="rtmp_uriTxt" name="rtmp_uriTxt" maxlength="128" size="36" type="text" />
+                                    <select id="rtmp_enableSle" name="select_lit" onchange="OnSelectRtmpType(0)">
+                                        <option value="0" selected="selected">Disable</option>
+                                        <option value="1">Enable</option>
+                                    </select>
+                                </dd>
+                            </dl>
+
+                            <dl id="rtmp_publish">
+                                <dt>RTMP/RTMPS/RTSP PUSH URL:</dt>
+                                <dd>
+                                    <input id="rtmp_publish_uri" name="rtmp_publish_uri" maxlength="256" size="36" type="text" />
+                                    <select id="rtmp_publish_enableSle" name="select_lit" onchange="OnSelectRtmpType(1)">
+                                        <option value="0" selected="selected">Disable</option>
+                                        <option value="1">Enable</option>
+                                    </select>
+                                </dd>
+                            </dl>
+
+							<dl>
+								<dt>Multicast IP:</dt>
+								<dd>
+									<input id="multicast_ip" name="multicast_ip" maxlength="128" size="36" type="text" />
+									<select id="multicast_enable" name="select_lit">
+										<option value="0">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>Multicast Port:</dt>
+								<dd>
+									<input id="multicast_port" name="multicast_port" maxlength="18" size="36" type="text" /> [1-65535]
+								</dd>
+							</dl>
+
+							<dl>
+								<dt>&nbsp;&nbsp;</dt>
+								<dd>
+									<input type="button" class="but" value="Apply" name="insert" onclick="SetInput()" id="subBut" />
+								</dd>
+							</dl>
+
+						</div>
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+
+
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+					</DIV>
+					<!-- End #tab2 -->
+				</DIV>
+				<!-- End .content-box-content -->
+			</DIV>
+			<!-- End .content-box -->
+			<!-- Start Notifications -->
+
+
+		</DIV>
+		<!-- End #main-content -->
+	</DIV>
+</BODY>
+
+</HTML>

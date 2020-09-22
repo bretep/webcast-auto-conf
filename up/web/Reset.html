@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+  <TITLE>编码器</TITLE>
+  <LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+  <LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+  <LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+  <SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+  <SCRIPT type="text/javascript">
+    var hostip = window.location.host;
+    var num = 0;
+    function SetReset() {
+      if (confirm("确定恢复到出厂设置？")) {
+        $.ajax({
+          type: "GET",
+          url: "http://" + hostip + "/reset",
+          dataType: "text",
+          cache: false,
+          success: function (data) {
+            if (data == "succeed") {
+              alert('恢复出厂设置成功,系统会自动重启,请稍后！');
+            }
+            else {
+              alert('恢复出厂设置失败！');
+            }
+          }
+        });
+      }
+    }
+    function changeLan() {
+      var Language = $("#LanSle").val();
+      if (Language == 'English') {
+        $.ajax({
+          type: "GET",
+          url: "http://" + hostip + "/set_sys?language=english",
+          dataType: "text",
+          cache: false
+        });
+        window.location.href = 'ResetE.html';
+      }
+    }
+
+  </SCRIPT>
+  <META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onload="ShowWifi();">
+  <DIV id="body-wrapper">
+    <DIV id="sidebar">
+      <DIV id="sidebar-wrapper">
+        <H1 id="sidebar-title">
+          <A href="#">编码器</A>
+        </H1>
+        <!-- Logo (221px wide) -->
+        <A href="#">
+          <IMG id="logo" alt="编码器" src="images/logo.png" border="0">
+        </A>
+        <!-- Sidebar Profile links -->
+
+        <UL id="main-nav">
+          <!-- Accordion Menu -->
+          <LI>
+            <A class="nav-top-item no-submenu " href="index.html">状态显示</A>
+          </LI>
+          <LI>
+            <A class="nav-top-item" href="OutputP1Main.html"> 编码设置</A>
+            <UL>
+              <LI>
+                <A href="OutputP1Main.html">主码流</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second1.html">次码流1</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second2.html">次码流2</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second3.html">次码流3</A>
+              </LI>
+              <LI>
+                <A href="AudioEncodSet.html">音频设置</A>
+              </LI>
+              <LI>
+                <A href="AdvancSet.html">高级设置</A>
+              </LI>
+            </UL>
+          </LI>
+          <LI>
+            <A class="nav-top-item" href="OutputP1MainOsd.html"> OSD设置</A>
+            <UL>
+              <LI>
+                <A href="OutputP1MainOsd.html">主码流</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second1Osd.html">次码流1</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second2Osd.html">次码流2</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second3Osd.html">次码流3</A>
+              </LI>
+              <LI>
+                <A href="Uplogo.html">LOGO上传</A>
+              </LI>
+            </UL>
+          </LI>
+          <LI>
+            <A class="nav-top-item current" href="SetNet.html">系统设置</A>
+            <UL>
+              <LI>
+                <A href="SetNet.html">网络设置</A>
+              </LI>
+              <LI id="wifi">
+                <A href="WifiSet.html">WIFI设置</A>
+              </LI>
+              <LI id="g4">
+                <A href="g4Set.html">4G设置</A>
+              </LI>
+              <LI>
+                <A href="SetPassword.html">密码设置</A>
+              </LI>
+              <LI>
+                <A href="Remserial.html">串口透传</A>
+              </LI>
+              <LI>
+                <A href="SystemUpdate.html">系统更新</A>
+              </LI>
+              <LI>
+                <A href="Reset.html" class="current">恢复出厂设置</A>
+              </LI>
+              <LI>
+                <A href="Reboot.html">重启设备</A>
+              </LI>
+              <LI>
+                <A href="Restart.html">定时重启</A>
+              </LI>
+            </UL>
+          </LI>
+        </UL>
+      </DIV>
+    </DIV>
+    <!-- End #sidebar -->
+    <DIV id="main-content">
+      <!-- Main Content Section with everything -->
+      <div style="float:right; margin-right:0px; margin-top:-10px;">
+        <p>语言:&nbsp;
+          <select id='LanSle' onChange="changeLan()">
+            <option value="Chinese" selected="selected">中文</option>
+          
+            <option value="English">英文</option>
+          </select>
+        </p>
+      </div>
+
+      <!-- End .shortcut-buttons-set -->
+      <DIV class="clear"></DIV>
+      <!-- End .clear -->
+
+
+      <DIV class="content-box">
+        <!-- Start Content Box -->
+        <DIV class="content-box-header">
+          <H3>恢复出厂设置</H3>
+        </DIV>
+        <!-- End .content-box-header -->
+        <DIV class="content-box-content">
+          <DIV class="tab-content">
+
+            <div class="write">
+              <dl>
+                <dt>&nbsp;&nbsp;</dt>
+                <dd>
+                  <p>单击此按钮将使编码器的所有设置恢复到出厂时的默认状态。</p>
+                  <input type="button" value="重 置" class="but" onClick="SetReset()" id="subBut2" />
+
+                </dd>
+              </dl>
+
+            </div>
+
+            <DIV class="clear"></DIV>
+            <!-- End .clear -->
+          </DIV>
+          <!-- End #tab2 -->
+        </DIV>
+        <!-- End .content-box-content -->
+      </DIV>
+      <!-- End .content-box -->
+
+    </DIV>
+    <!-- End #main-content -->
+  </DIV>
+</BODY>
+
+</HTML>

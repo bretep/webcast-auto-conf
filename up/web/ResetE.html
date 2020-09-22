@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+  <TITLE>H.264 Encoder</TITLE>
+  <LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+  <LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+  <LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+  <SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+  <SCRIPT type="text/javascript">
+    var hostip = window.location.host;
+    var num = 0;
+    function SetReset() {
+      if (confirm("Are you sure restore to factory settings？")) {
+        $.ajax({
+          type: "GET",
+          url: "http://" + hostip + "/reset",
+          dataType: "text",
+          cache: false,
+          success: function (data) {
+            if (data == "succeed") {
+              alert('Reset successfully,the system will automatically restart later!');
+            }
+            else {
+              alert('Failed to set！');
+            }
+          }
+        });
+      }
+    }
+
+    function changeLan() {
+      var Language = $("#LanSle").val();
+      if (Language == 'Chinese') {
+        $.ajax({
+
+          type: "GET",
+          url: "http://" + hostip + "/set_sys?language=chinese",
+          dataType: "text",
+          cache: false
+        });
+        window.location.href = 'Reset.html';
+      }
+    }
+
+  </SCRIPT>
+  <META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onload="ShowWifi();">
+  <DIV id="body-wrapper">
+    <DIV id="sidebar">
+      <DIV id="sidebar-wrapper">
+        <H1 id="sidebar-title">
+          <A href="#">H.264 Encoder</A>
+        </H1>
+        <!-- Logo (221px wide) -->
+        <A href="#">
+          <IMG id="logo" alt="H.264 Encoder" src="images/logo.png" border="0">
+        </A>
+        <!-- Sidebar Profile links -->
+
+        <UL id="main-nav">
+          <!-- Accordion Menu -->
+          <LI>
+            <A class="nav-top-item no-submenu " href="indexE.html">Status</A>
+          </LI>
+          <LI>
+            <A class="nav-top-item" href="OutputP1MainE.html">Encoder</A>
+            <UL>
+              <LI>
+                <A href="OutputP1MainE.html">Main stream</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second1E.html">Substream1</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second2E.html">Substream2</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second3E.html">Substream3</A>
+              </LI>
+              <LI>
+                <A href="AudioEncodSetE.html">Audio</A>
+              </LI>
+              <LI>
+                <A href="AdvancSetE.html">Advanced</A>
+              </LI>
+            </UL>
+          </LI>
+          <LI>
+            <A class="nav-top-item" href="OutputP1MainOsdE.html">OSD</A>
+            <UL>
+              <LI>
+                <A href="OutputP1MainOsdE.html">Main stream</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second1OsdE.html">Substream1</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second2OsdE.html">Substream2</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second3OsdE.html">Substream3</A>
+              </LI>
+              <LI>
+                <A href="UplogoE.html">LOGO Upload</A>
+              </LI>
+            </UL>
+          </LI>
+          <LI>
+            <A class="nav-top-item current" href="SetNetE.html">System</A>
+            <UL>
+              <LI>
+                <A href="SetNetE.html">Network</A>
+              </LI>
+              <LI id="wifi">
+                <A href="WifiSetE.html">WIFI</A>
+              </LI>
+              <LI id="g4">
+                <A href="g4SetE.html">4G</A>
+              </LI>
+              <LI>
+                <A href="SetPasswordE.html">Password</A>
+              </LI>
+              <LI>
+                <A href="RemserialE.html">Serial to TCP</A>
+              </LI>
+              <LI>
+                <A href="SystemUpdateE.html">Upgrade</A>
+              </LI>
+              <LI>
+                <A href="ResetE.html" class="current">Reset</A>
+              </LI>
+              <LI>
+                <A href="RebootE.html">Reboot</A>
+              </LI>
+              <LI>
+                <A href="RestartE.html">Schedule Restart</A>
+              </LI>
+            </UL>
+          </LI>
+        </UL>
+      </DIV>
+    </DIV>
+    <!-- End #sidebar -->
+    <DIV id="main-content">
+      <!-- Main Content Section with everything -->
+      <div style="float:right; margin-right:0px; margin-top:-10px;">
+        <p>Language:&nbsp;
+          <select id='LanSle' onChange="changeLan()">
+            <option value="Chinese">Chinese</option>
+
+            <option value="English" selected="selected">English</option>
+          </select>
+        </p>
+      </div>
+      <!-- End .shortcut-buttons-set -->
+      <DIV class="clear"></DIV>
+      <!-- End .clear -->
+
+
+      <DIV class="content-box">
+        <!-- Start Content Box -->
+        <DIV class="content-box-header">
+          <H3>Reset</H3>
+        </DIV>
+        <!-- End .content-box-header -->
+        <DIV class="content-box-content">
+          <DIV class="tab-content">
+
+            <div class="write">
+              <dl>
+                <dt>&nbsp;&nbsp;</dt>
+                <dd>
+                  <p>Click the button to restore all the settings to the default.</p>
+                  <input type="button" value="Reset" class="but" onClick="SetReset()" id="subBut2" />
+
+                </dd>
+              </dl>
+
+            </div>
+
+            <DIV class="clear"></DIV>
+            <!-- End .clear -->
+          </DIV>
+          <!-- End #tab2 -->
+        </DIV>
+        <!-- End .content-box-content -->
+      </DIV>
+      <!-- End .content-box -->
+
+    </DIV>
+    <!-- End #main-content -->
+  </DIV>
+</BODY>
+
+</HTML>

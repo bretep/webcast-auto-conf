@@ -1,0 +1,699 @@
+html {
+	height: 100%; font-size: 100%; margin-bottom: 1px;
+}
+body {
+	background: url("../images/bg-body.gif") repeat-y left top rgb(240, 240, 240); color: rgb(85, 85, 85);  font-family: 12px "Î¢ÈíÑÅºÚ", Arial, Helvetica, sans-serif; font-size: 12px;
+}
+#body-wrapper {
+	background: url("../images/bg-radial-gradient.gif") fixed no-repeat 230px top;
+}
+h1 {
+	color: rgb(34, 34, 34); font-family: Helvetica, Arial, sans-serif; font-weight: bold;
+}
+h2 {
+	color: rgb(34, 34, 34); font-family: Helvetica, Arial, sans-serif; font-weight: bold;
+}
+h3 {
+	color: rgb(34, 34, 34); font-family: Helvetica, Arial, sans-serif; font-weight: bold;
+}
+h4 {
+	color: rgb(34, 34, 34); font-family: Helvetica, Arial, sans-serif; font-weight: bold;
+}
+h5 {
+	color: rgb(34, 34, 34); font-family: Helvetica, Arial, sans-serif; font-weight: bold;
+}
+h6 {
+	color: rgb(34, 34, 34); font-family: Helvetica, Arial, sans-serif; font-weight: bold;
+}
+h1 {
+	top: -1000px; color: rgb(255, 255, 255); font-family: Calibri, Helvetica, Arial, sans-serif; font-size: 31px; font-weight: bold; position: absolute;
+}
+h2 {
+	padding: 0px 0px 10px; font-size: 26px;
+}
+h3 {
+	padding: 0px 0px 10px; font-size: 17px;
+}
+h4 {
+	padding: 0px 0px 5px; font-size: 16px;
+}
+h5 {
+	padding: 0px 0px 5px; font-size: 14px;
+}
+h6 {
+	padding: 0px 0px 5px; font-size: 12px;
+}
+a {
+	color: rgb(87, 160, 0); text-decoration: none;
+}
+a:hover {
+	color: rgb(0, 0, 0);
+}
+a:active {
+	color: rgb(119, 119, 119);
+}
+a:focus {
+	outline: 1px;
+}
+strong {
+	color: rgb(51, 51, 51); font-weight: bold;
+}
+small {
+	font-size: 0.85em;
+}
+pre {
+	font-family: monospace;
+}
+p {
+	padding: 2px 0px 2px; line-height: 1.6em;
+}
+.clear {
+	clear: both;
+}
+.align-left {
+	float: left;
+}
+.align-right {
+	float: right;
+}
+.button {
+	background: url("../images/bg-button-green.gif") repeat-x left top rgb(69, 147, 0) !important; padding: 4px 7px !important; border: 1px solid rgb(69, 147, 0) !important; color: rgb(255, 255, 255) !important; font-family: Verdana, Arial, sans-serif; font-size: 11px !important; display: inline-block; cursor: pointer;
+}
+
+.button:hover {
+	text-decoration: underline;
+}
+.button:active {
+	padding: 5px 7px 3px !important;
+}
+a.remove-link {
+	color: rgb(187, 0, 0);
+}
+a.remove-link:hover {
+	color: rgb(0, 0, 0);
+}
+#sidebar {
+	background: url("../images/bg-sidebar.gif") no-repeat left top; left: 0px; top: 0px; width: 230px; height: 100%; color: rgb(136, 136, 136); font-size: 11px; position: absolute;
+}
+#sidebar #sidebar-wrapper {
+	margin: 0px 0px 0px 9px;
+}
+#sidebar a {
+	color: rgb(204, 204, 204);
+}
+#sidebar a:active {
+	color: rgb(204, 204, 204);
+}
+#sidebar a:hover {
+	color: rgb(255, 255, 255);
+}
+#sidebar #sidebar-title {
+	margin: 40px 0px 40px 15px;
+}
+#sidebar #logo {
+	margin: 40px 0px;
+}
+#sidebar #profile-links {
+	padding: 0px 15px 20px; text-align: right; line-height: 1.5em;
+}
+#sidebar #main-nav {
+	margin: 0px 0px 0px 15px; padding: 0px; width: 206px; font-family: Helvetica, Arial, sans-serif;
+}
+#sidebar #main-nav li {
+	list-style: none; text-align: right; padding-bottom: 10px;
+}
+#sidebar #main-nav li a.nav-top-item {
+	background: url("../images/bg-menu-item-green.gif") no-repeat right; padding: 10px 15px; color: rgb(255, 255, 255); font-size: 14px; text-decoration: none; display: block; cursor: pointer;
+}
+#sidebar #main-nav li a.current {
+	color: rgb(51, 51, 51); font-weight: bold; background-image: url("../images/bg-menu-item-current.gif") !important;
+}
+#sidebar #main-nav li a.current:hover {
+	color: rgb(51, 51, 51);
+}
+#sidebar #main-nav ul {
+	margin: 0px; padding: 0px; font-size: 12px;
+}
+#sidebar #main-nav ul li {
+	list-style: none; margin: 0px; padding: 0px; text-align: right;
+}
+#sidebar #main-nav ul li a {
+	padding: 8px 15px; color: rgb(170, 170, 170); line-height: 1.2em; font-size: 13px; display: block;
+}
+#sidebar #main-nav ul li a:hover {
+	color: rgb(255, 255, 255);
+}
+#sidebar #main-nav ul li a.current {
+	color: rgb(255, 255, 255);
+}
+#sidebar #main-nav ul li a.current:hover {
+	color: rgb(255, 255, 255);
+}
+#sidebar #main-nav ul li a.current {
+	background: url("../images/menu-current-arrow.gif") no-repeat right !important;
+}
+#messages p {
+	padding: 10px 0px; border-top-color: rgb(221, 221, 221); border-top-width: 1px; border-top-style: solid;
+}
+#messages form {
+	padding: 10px 0px; border-top-color: rgb(221, 221, 221); border-top-width: 1px; border-top-style: solid;
+}
+#messages h4 {
+	padding: 10px 0px;
+}
+#messages fieldset {
+	margin: 0px;
+}
+#messages textarea {
+	margin: 0px 0px 15px;
+}
+#main-content {
+	margin: 0px 30px 0px 260px; padding: 40px 0px 0px;
+}
+.column-left {
+	width: 48%; float: left;
+}
+.column-right {
+	width: 48%; float: right;
+}
+#page-intro {
+	padding: 0px 0px 20px; font-size: 17px;
+}
+#footer {
+	margin: 40px 0px 0px; padding: 20px 0px; font-size: 12px; border-top-color: rgb(204, 204, 204); border-top-width: 1px; border-top-style: solid;
+}
+#main-content ul {
+	padding: 10px 0px;
+}
+#main-content ol {
+	padding: 10px 0px;
+}
+#main-content ul li {
+	background: url("../images/bullet_black.png") no-repeat left; padding: 4px 0px 4px 20px;
+}
+#main-content ol {
+	padding: 0px 0px 0px 24px;
+}
+#main-content ol li {
+	list-style: decimal; padding: 4px 0px;
+}
+.content-box {
+	background: rgb(255, 255, 255); margin: 0px 0px 20px; border: 1px solid rgb(204, 204, 204);
+}
+.content-box-header {
+	background: url("../images/bg-content-box.gif") repeat-x left top rgb(229, 229, 229); height: 40px; margin-top: 1px;
+}
+.content-box-header h3 {
+	padding: 12px 15px 10px; float: left;
+}
+ul.content-box-tabs {
+	margin: 0px !important; padding: 12px 15px 0px 0px !important; float: right;
+}
+ul.content-box-tabs li {
+	margin: 0px; padding: 0px !important; float: left; background-image: none !important;
+}
+ul.content-box-tabs li a {
+	margin: 1px; padding: 8px 10px; color: rgb(51, 51, 51); border-bottom-color: currentColor; border-bottom-width: 0px; border-bottom-style: none; display: block;
+}
+ul.content-box-tabs li a:hover {
+	color: rgb(87, 160, 0);
+}
+ul.content-box-tabs li a.current {
+	background: rgb(255, 255, 255); border-width: 1px 1px 0px; border-style: solid solid none; border-color: rgb(204, 204, 204) rgb(204, 204, 204) currentColor; margin: 0px;
+}
+.content-box-content {
+	padding: 20px; font-size: 13px; border-top-color: rgb(204, 204, 204); border-top-width: 1px; border-top-style: solid;
+}
+#main-content table {
+	width: 100px; border-collapse: collapse;
+}
+#main-content table thead th {
+	font-size: 15px; font-weight: bold; border-bottom-color: rgb(221, 221, 221); border-bottom-width: 1px; border-bottom-style: solid;
+}
+#main-content tbody {
+	border-bottom-color: rgb(221, 221, 221); border-bottom-width: 1px; border-bottom-style: solid;
+}
+#main-content tbody tr {
+	background: rgb(255, 255, 255);
+}
+#main-content tbody tr.alt-row {
+	background: rgb(243, 243, 243);
+}
+#main-content table td {
+	padding:6.8px; line-height: 1.3em;
+}
+/*#main-content table th {
+	padding: 10px; line-height: 1.3em;
+}
+#main-content table tfoot td .bulk-actions {
+	padding: 15px 0px 5px;
+}
+#main-content table tfoot td .bulk-actions select {
+	padding: 4px; border: 1px solid rgb(204, 204, 204);
+}*/
+#main-content .pagination {
+	padding: 20px 0px 5px; text-align: right; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px;
+}
+.pagination a {
+	margin: 0px 5px 0px 0px; padding: 3px 6px;
+}
+.pagination a.number {
+	border: 1px solid rgb(221, 221, 221);
+}
+.pagination a.current {
+	background: url("../images/bg-button-green.gif") repeat-x left top rgb(70, 148, 0) !important; border-color: rgb(69, 147, 0) !important; color: rgb(255, 255, 255) !important;
+}
+.pagination a.current:hover {
+	text-decoration: underline;
+}
+.shortcut-button {
+	background: url("../images/shortcut-button-bg.gif") no-repeat left top rgb(247, 247, 247); margin: 0px 0px 20px; border: 1px solid rgb(204, 204, 204); width: 120px; display: block;
+}
+.shortcut-button span {
+	padding: 15px 10px; border: 1px solid rgb(255, 255, 255); text-align: center; color: rgb(85, 85, 85); line-height: 1.3em; font-size: 13px; display: block;
+}
+.shortcut-button span img {
+	margin-bottom: 10px;
+}
+.shortcut-button:hover {
+	background: rgb(255, 255, 255);
+}
+.shortcut-button span:hover {
+	color: rgb(87, 160, 0);
+}
+ul.shortcut-buttons-set li {
+	background: 0px; margin: 0px 15px 0px 0px; padding: 0px !important; float: left;
+}
+form label {
+	padding: 0px 0px 5px; font-weight: bold; display: block;
+}
+
+
+
+form fieldset legend {
+	padding-top: 10px; font-weight: bold; margin-bottom: 10px;
+}
+form p small {
+	color: rgb(119, 119, 119); font-size: 0.75em;
+}
+form input.text-input {
+background: url("../images/bg-form-field.gif") repeat-x left top rgb(255, 255, 255);  border: 1px solid rgb(213, 213, 213); color: rgb(51, 51, 51); font-size: 13px;height:25px;
+}
+form select {
+background: url("../images/bg-form-field.gif") repeat-x left top rgb(255, 255, 255); padding: 6px; border: 1px solid rgb(213, 213, 213); color: rgb(51, 51, 51); font-size: 13px;
+}
+form textarea {
+background: url("../images/bg-form-field.gif") repeat-x left top rgb(255, 255, 255); padding: 6px; border: 1px solid rgb(213, 213, 213); color: rgb(51, 51, 51); font-size: 13px;
+}
+form .wysiwyg {
+background: url("../images/bg-form-field.gif") repeat-x left top rgb(255, 255, 255); padding: 6px; border: 1px solid rgb(213, 213, 213); color: rgb(51, 51, 51); font-size: 13px;
+}
+form .small-input {
+	width: 25% !important; 
+}
+form .medium-input {
+	width: 50% !important;
+}
+form .large-input {
+	padding: 8px !important; width: 97.5% !important; font-size: 16px !important;
+}
+form textarea {
+	width: 97.5% !important; font-family: Arial, Helvetica, sans-serif;
+}
+form select {
+	background: rgb(255, 255, 255); margin-left:20px; width: 25%; 
+}
+form input[type='checkbox'] {
+	padding: 0px; border: 0px currentColor;
+}
+form input[type='radio'] {
+	padding: 0px; border: 0px currentColor;
+}
+.notification {
+	background-position: 10px 11px !important; margin: 0px 0px 15px; padding: 0px; border: 1px solid currentColor; width: 99.8%; font-size: 13px; position: relative; background-repeat: no-repeat !important;
+}
+.attention {
+	background: url("../images/exclamation.png") no-repeat 10px 11px rgb(255, 251, 204); border-color: rgb(230, 219, 85); color: rgb(102, 100, 82);
+}
+.information {
+	background: url("../images/information.png") rgb(219, 227, 255); border-color: rgb(162, 180, 238); color: rgb(88, 91, 102);
+}
+.success {
+	background: url("../images/tick_circle.png") rgb(213, 255, 206); border-color: rgb(154, 223, 143); color: rgb(85, 102, 82);
+}
+.error {
+	background: url("../images/cross_circle.png") rgb(255, 206, 206); border-color: rgb(223, 143, 143); color: rgb(102, 82, 82);
+}
+.notification div {
+	padding: 10px 10px 10px 36px; line-height: 1.5em; font-style: normal; display: block;
+}
+.notification .close {
+	top: 5px; right: 5px; color: rgb(153, 0, 0); font-size: 9px; position: absolute;
+}
+.input-notification {
+	background-position: left 2px; margin: 0px 0px 0px 5px; padding: 2px 0px 2px 22px; background-repeat: no-repeat; background-color: transparent;
+}
+#login-wrapper #login-content .notification {
+	border: 0px currentColor; color: rgb(255, 255, 255) !important; background-color: rgb(20, 20, 20);
+}
+body#login {
+	background: url("../images/bg-login.gif") rgb(34, 34, 34); color: rgb(255, 255, 255);
+}
+#login-wrapper {
+	background: url("../images/bg-login-top.png") repeat-x left top;
+}
+#login-wrapper #login-top {
+	padding: 140px 0px 50px; width: 100%; text-align: center;
+}
+#login-wrapper #login-content {
+	margin: 0px auto; width: 300px; text-align: left;
+}
+#login-wrapper #login-content label {
+	padding: 0px; width: 70px; color: rgb(255, 255, 255); font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: normal; float: left;
+}
+#login-wrapper #login-content input {
+	background: rgb(255, 255, 255); margin: 0px 0px 20px; border: 0px currentColor; width: 200px; float: right;
+}
+#login-wrapper #login-content p {
+	padding: 0px;
+}
+#login-wrapper #login-content p#remember-password {
+	float: right;
+}
+#login-wrapper #login-content p#remember-password input {
+	margin: 0px 10px 0px 0px; border: 0px currentColor; width: auto; float: none;
+}
+#login-wrapper #login-content p .button {
+	width: auto; margin-top: 20px;
+}
+#facebox .b {
+	background: url("../images/b.png");
+}
+#facebox .tl {
+	background: url("../images/tl.png");
+}
+#facebox .tr {
+	background: url("../images/tr.png");
+}
+#facebox .bl {
+	background: url("../images/bl.png");
+}
+#facebox .br {
+	background: url("../images/br.png");
+}
+#facebox {
+	left: 0px; top: 0px; text-align: left; position: absolute; z-index: 100;
+}
+#facebox .popup {
+	position: relative;
+}
+#facebox table {
+	border-collapse: collapse;
+}
+#facebox td {
+	padding: 0px; border-bottom-color: currentColor; border-bottom-width: 0px; border-bottom-style: none;
+}
+#facebox .body {
+	background: rgb(255, 255, 255); padding: 10px; width: 370px;
+}
+#facebox .loading {
+	text-align: center;
+}
+#facebox .image {
+	text-align: center;
+}
+#facebox img {
+	margin: 0px; border: 0px currentColor;
+}
+#facebox .footer {
+	text-align: right; padding-top: 5px; margin-top: 10px; border-top-color: rgb(221, 221, 221); border-top-width: 1px; border-top-style: solid;
+}
+#facebox .tl {
+	padding: 0px; width: 10px; height: 10px; overflow: hidden;
+}
+#facebox .tr {
+	padding: 0px; width: 10px; height: 10px; overflow: hidden;
+}
+#facebox .bl {
+	padding: 0px; width: 10px; height: 10px; overflow: hidden;
+}
+#facebox .br {
+	padding: 0px; width: 10px; height: 10px; overflow: hidden;
+}
+#facebox_overlay {
+	left: 0px; top: 0px; width: 100%; height: 100%; position: fixed;
+}
+.facebox_hide {
+	z-index: -100;
+}
+.facebox_overlayBG {
+	z-index: 99; background-color: rgb(0, 0, 0);
+}
+div.wysiwyg {
+	padding: 5px; border: 1px solid rgb(204, 204, 204); width: 97.5% !important; background-color: rgb(255, 255, 255);
+}
+div.wysiwyg * {
+	margin: 0px; padding: 0px;
+}
+div.wysiwyg ul.panel {
+	padding: 0px 0px 5px; width: 100%; border-bottom-color: rgb(204, 204, 204); border-bottom-width: 1px; border-bottom-style: solid; float: left;
+}
+div.wysiwyg ul.panel li {
+	margin: 0px 2px; padding: 0px !important; float: left; list-style-type: none; background-image: none !important; background-attachment: scroll; background-repeat: repeat; background-size: auto; background-origin: padding-box; background-clip: border-box; background-color: rgb(255, 255, 255);
+}
+div.wysiwyg ul.panel li.separator {
+	margin: 0px 4px; height: 16px; border-left-color: rgb(204, 204, 204); border-left-width: 1px; border-left-style: solid;
+}
+div.wysiwyg ul.panel li a {
+	background: url("../images/jquery.wysiwyg.gif") no-repeat -64px -80px; padding: 0px !important; border: 0px currentColor; width: 16px; height: 16px; display: block; cursor: pointer;
+}
+div.wysiwyg ul.panel li a:hover {
+	
+}
+div.wysiwyg ul.panel li a.active {
+	
+}
+div.wysiwyg ul.panel li a.active {
+	border-width: 1px; border-style: solid; border-color: rgb(170, 170, 170) rgb(204, 204, 204) rgb(204, 204, 204) rgb(170, 170, 170); padding: 0px; background-color: rgb(249, 249, 249);
+}
+div.wysiwyg ul.panel li a.bold {
+	background-position: 0px -16px;
+}
+div.wysiwyg ul.panel li a.italic {
+	background-position: -16px -16px;
+}
+div.wysiwyg ul.panel li a.strikeThrough {
+	background-position: -32px -16px;
+}
+div.wysiwyg ul.panel li a.underline {
+	background-position: -48px -16px;
+}
+div.wysiwyg ul.panel li a.justifyLeft {
+	
+}
+div.wysiwyg ul.panel li a.justifyCenter {
+	background-position: -16px 0px;
+}
+div.wysiwyg ul.panel li a.justifyRight {
+	background-position: -32px 0px;
+}
+div.wysiwyg ul.panel li a.justifyFull {
+	background-position: -48px 0px;
+}
+div.wysiwyg ul.panel li a.indent {
+	background-position: -64px 0px;
+}
+div.wysiwyg ul.panel li a.outdent {
+	background-position: -80px 0px;
+}
+div.wysiwyg ul.panel li a.subscript {
+	background-position: -64px -16px;
+}
+div.wysiwyg ul.panel li a.superscript {
+	background-position: -80px -16px;
+}
+div.wysiwyg ul.panel li a.undo {
+	background-position: 0px -64px;
+}
+div.wysiwyg ul.panel li a.redo {
+	background-position: -16px -64px;
+}
+div.wysiwyg ul.panel li a.insertOrderedList {
+	background-position: -32px -48px;
+}
+div.wysiwyg ul.panel li a.insertUnorderedList {
+	background-position: -16px -48px;
+}
+div.wysiwyg ul.panel li a.insertHorizontalRule {
+	background-position: 0px -48px;
+}
+div.wysiwyg ul.panel li a.h1 {
+	background-position: 0px -32px;
+}
+div.wysiwyg ul.panel li a.h2 {
+	background-position: -16px -32px;
+}
+div.wysiwyg ul.panel li a.h3 {
+	background-position: -32px -32px;
+}
+div.wysiwyg ul.panel li a.h4 {
+	background-position: -48px -32px;
+}
+div.wysiwyg ul.panel li a.h5 {
+	background-position: -64px -32px;
+}
+div.wysiwyg ul.panel li a.h6 {
+	background-position: -80px -32px;
+}
+div.wysiwyg ul.panel li a.cut {
+	background-position: -32px -64px;
+}
+div.wysiwyg ul.panel li a.copy {
+	background-position: -48px -64px;
+}
+div.wysiwyg ul.panel li a.paste {
+	background-position: -64px -64px;
+}
+div.wysiwyg ul.panel li a.increaseFontSize {
+	background-position: -16px -80px;
+}
+div.wysiwyg ul.panel li a.decreaseFontSize {
+	background-position: -32px -80px;
+}
+div.wysiwyg ul.panel li a.createLink {
+	background-position: -80px -48px;
+}
+div.wysiwyg ul.panel li a.insertImage {
+	background-position: -80px -80px;
+}
+div.wysiwyg ul.panel li a.html {
+	background-position: -48px -48px;
+}
+div.wysiwyg ul.panel li a.removeFormat {
+	background-position: -80px -64px;
+}
+div.wysiwyg ul.panel li a.empty {
+	background-position: -64px -80px;
+}
+div.wysiwyg iframe {
+	margin: 5px 0px 0px; border: 0px currentColor; width: 97.5% !important; clear: left;
+}
+
+
+.in {
+	margin: 25px auto; width: 850px; text-align: left;
+}
+.spanfont{ font-weight:bold;
+}
+
+
+
+
+
+.write
+{
+    width: 100%;
+    margin: 0 auto;
+    padding-top: 10px;
+}
+.write dl
+{
+    clear: both;
+    padding-bottom: 10px;
+    padding-top: 10px;
+}
+.write dl dt
+{
+    font-size: 14px;
+    color: #333333;
+    float: left;
+    line-height: 23px;
+    width: 18%;
+    padding-right: 5px;
+    text-align: right;
+	font-weight:bold;
+
+}
+.write dd
+{
+    float: left;
+    width: 80%;
+	text-align: left;
+	line-height: 23px;
+}
+.write dd .input
+{
+    line-height: 23px;
+    padding: 0px 3px;
+    border: 1px #d0d0d0 solid; 
+    background-repeat: no-repeat;    
+}
+
+
+.write dd div
+{
+    clear: both;
+    line-height: 23px;
+}
+
+.write dd div span
+{
+    padding-right: 10px;
+}
+.write dd .but
+{
+    width: 60px;
+    height: 30px;
+    background: none;
+    border: 0px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+	background: url("../images/bg-button-green.gif") repeat-x left top rgb(69, 147, 0) !important; 
+}
+.line {
+	 height:1px; border-top-color: rgb(186, 185, 185); border-top-width: 1px; border-top-style: solid; margin-top:15px; margin-bottom:10px;
+}
+.line2 {
+	height:1px; border-top-color: rgb(186, 185, 185); border-top-width: 1px; border-top-style: solid; width:100%; 
+}
+
+
+
+
+
+
+table.page{ 
+height:65px; border-left:10px solid #a8a8a8; border-right:10px solid #a8a8a8; border-bottom:10px solid #a8a8a8; font-size:12px;
+}
+.graph{ 
+width:450px; 
+border:1px solid #30A4B1; 
+height:25px; 
+} 
+#bar{ 
+display:block; 
+background:#30A4B1; 
+float:left; 
+height:100%; 
+text-align:center; 
+} 
+#barNum{ 
+position:absolute; 
+}
+
+.span_href {
+	color: rgb(87, 160, 0); text-decoration: none; cursor: pointer;
+}
+
+.span_href:hover {
+	color: rgb(0, 0, 0);
+}
+.span_href:active {
+	color: rgb(119, 119, 119);
+}
+
+.span_href:focus {
+	outline: 1px;
+}

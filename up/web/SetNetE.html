@@ -1,0 +1,522 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+	<TITLE>H.264 Encoder</TITLE>
+	<LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+	<SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+	<SCRIPT type="text/javascript">
+		var hostip = window.location.host;
+		function dhcpEnable() {
+			var dhcp = $("#dhcp_enable").val();
+			if (dhcp == 0) {
+				$("#ip0Txt").removeAttr("disabled");
+				$("#netmask0Txt").removeAttr("disabled");
+				$("#gateway0Txt").removeAttr("disabled");
+			}
+			else {
+				$("#ip0Txt").attr("disabled", "disabled");
+				$("#netmask0Txt").attr("disabled", "disabled");
+				$("#gateway0Txt").attr("disabled", "disabled");
+			}
+		}
+
+		function GetNetajax() {
+			ShowWifi();
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_sys",
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var dhcp_enable = $(data).find("dhcp_enable").text();
+					var ip0 = $(data).find("ip").text();
+					var netmask0 = $(data).find("netmask").text();
+					var gateway0 = $(data).find("gateway").text();
+					var dns0 = $(data).find("dns0").text();
+					var mac0 = $(data).find("mac").text();
+					var dns1 = $(data).find("dns1").text();
+					var http_port = $(data).find("http_port").text();
+					var rtsp_port = $(data).find("rtsp_port").text();
+
+					$("#dhcp_enable").attr("value", dhcp_enable);
+					dhcpEnable();
+					$("#ip0Txt").attr("value", ip0);
+					$("#netmask0Txt").attr("value", netmask0);
+					$("#gateway0Txt").attr("value", gateway0);
+					$("#dns0Txt").attr("value", dns0);
+					$("#mac0Txt").attr("value", mac0);
+					$("#dns1Txt").attr("value", dns1);
+					$("#http_portTxt").attr("value", http_port);
+					$("#rtsp_portTxt").attr("value", rtsp_port);
+				}
+			});
+
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_adv",
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var ntp_enable = $(data).find("ntp_enable").text();
+					$("#ntp_enable").attr("value", ntp_enable);
+					var ntp_server = $(data).find("ntp_server").text();
+					$("#ntp_server").attr("value", ntp_server);
+					var time_zone = $(data).find("time_zone").text();
+					$("#ntp_timezone").attr("value", time_zone);
+				}
+			});
+		}
+
+		function SetIpAjax() {
+			var dhcp_enable = $("#dhcp_enable").val();
+			var ip0 = $("#ip0Txt").val();
+			var netmask0 = $("#netmask0Txt").val();
+			var gateway0 = $("#gateway0Txt").val();
+			var dns0 = $("#dns0Txt").val();
+			var mac0 = $("#mac0Txt").val();
+			var dns1 = $("#dns1Txt").val();
+			var http_port = $("#http_portTxt").val();
+			var rtsp_port = $("#rtsp_portTxt").val();
+			var validated = IsValidate();
+
+			var ntp_enable=$("#ntp_enable").val();
+			var ntp_server=$("#ntp_server").val();
+			var time_zone=$("#ntp_timezone").val();
+			var validated_ntp=checkNtpServer(ntp_server);
+			if (validated == true && validated_ntp == true) {
+				var set_count = 0;
+
+				var urlstr = "http://" + hostip + "/set_sys?ip=" + ip0 + "&netmask=" + netmask0 + "&gateway=" + gateway0 + "&dns0=" + dns0 + "&mac=" + mac0 + "&http_port=" + http_port + "&dns1=" + dns1 + "&rtsp_port=" + rtsp_port + "&dhcp_enable=" + dhcp_enable;
+				$.ajax({
+					type: "GET",
+					url: urlstr,
+					dataType: "text",
+					cache: false,
+					async: false, 
+					success: function (data) {
+						if (data == "succeed") {
+							++set_count;
+						}
+					}
+				});
+
+				$.ajax({
+					type: "GET",
+					url: "http://" + hostip + "/set_adv?ntp_enable=" + ntp_enable + "&ntp_server=" + ntp_server + "&time_zone=" + time_zone,
+					dataType: "text",
+					cache: false,
+					async: false, 
+					success: function (data) {
+						if (data == "succeed") {
+							++set_count;
+						}
+					}
+				});
+
+				if(set_count == 2){
+					alert('Set successfully, please restart your device！');
+				}
+				else{
+					alert('Failed to set！');
+				}
+			}
+		}
+
+		function checkNtpServer(str)
+		{
+			if(str == "") {
+				alert("NTP Server cannot be empty！");
+				return false;
+			}
+
+			var exp=/^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/;
+			var exp1 = /^((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]\d)|\d)){3}$/;
+
+			var result=true;
+			result = exp.test(str);
+			if(!result) result = exp1.test(str);
+			if(!result) {
+				alert("NTP Server is not correct！");
+			}
+			return result;
+		}
+
+		function IsValidate() {
+			var validated = true;
+			var ip0 = $("#ip0Txt").val();
+			var netmask0 = $("#netmask0Txt").val();
+			var gateway0 = $("#gateway0Txt").val();
+			var dns0 = $("#dns0Txt").val();
+			var mac0 = $("#mac0Txt").val();
+			var dns1 = $("#dns1Txt").val();
+			var http_port = $("#http_portTxt").val();
+			var Inthttp_port = IsInteger(http_port);
+			var rtsp_port = $("#rtsp_portTxt").val();
+			var Intrtsp_port = IsInteger(rtsp_port);
+
+			if (ip0 == "" || netmask0 == "" || gateway0 == "" || dns0 == "" || mac0 == "" || dns1 == "" || http_port == "" || rtsp_port == "") {
+				alert('Set the content cannot be empty!');
+				validated = false;
+			}
+			else if (!checkIp(ip0)) {
+				alert('IP format is not correct!');
+				validated = false;
+			}
+			else if (!checkNetmask(netmask0)) {
+				alert('Netmask format is not correct!');
+				validated = false;
+			}
+			else if (!checkIp(gateway0)) {
+				alert('Gateway format is not correct!');
+				validated = false;
+			}
+			else if (!checkIp(dns0)) {
+				alert('Preferred DNS format is not correct!');
+				validated = false;
+			}
+			else if (!checkIp(dns1)) {
+				alert('Reserve DNS format is not correct!');
+				validated = false;
+			}
+			else if (!CheckMac(mac0)) {
+				alert('MAC format is not correct!');
+				validated = false;
+			}
+
+			else if (http_port < 1 || http_port > 65500 || Inthttp_port == false) {
+				alert('Port value should be an integer in 1-65500!');
+				validated = false;
+			}
+			else if (rtsp_port < 1 || rtsp_port > 65500 || Intrtsp_port == false) {
+				alert('RTSP Port value should be an integer in 1-65500!');
+				validated = false;
+			}
+
+			return validated;
+		}
+
+		//Judge IP
+		function checkIp(str) {
+			var ss = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+			return ss.test(str);
+		}
+		//Judge Mac
+		function CheckMac(str) {
+			var reg_name = /^[a-fA-F\d]{2}:[a-fA-F\d]{2}:[a-fA-F\d]{2}:[a-fA-F\d]{2}:[a-fA-F\d]{2}:[a-fA-F\d]{2}$/;
+			return reg_name.test(str);
+		}
+
+		function checkNetmask(str) {
+			var ss = /^(254|252|248|240|224|192|128|0)\.0\.0\.0|255\.(254|252|248|240|224|192|128|0)\.0\.0|255\.255\.(254|252|248|240|224|192|128|0)\.0|255\.255\.255\.(254|252|248|240|224|192|128|0)$/;
+			return ss.test(str);
+		}
+		function IsInteger(interger) {
+			var IsInteger = true;
+			if (parseInt(interger) == interger) {
+				IsInteger = true;
+			}
+			else {
+				IsInteger = false;
+			}
+			return IsInteger;
+		}
+		function changeLan() {
+			var Language = $("#LanSle").val();
+			if (Language == 'Chinese') {
+				$.ajax({
+					type: "GET",
+					url: "http://" + hostip + "/set_sys?language=chinese",
+					dataType: "text",
+					cache: false
+				});
+				window.location.href = 'SetNet.html';
+			}
+		} 
+	</SCRIPT>
+	<META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onLoad="GetNetajax()">
+	<DIV id="body-wrapper">
+		<DIV id="sidebar">
+			<DIV id="sidebar-wrapper">
+				<H1 id="sidebar-title">
+					<A href="#">H.264 Encoder</A>
+				</H1>
+				<!-- Logo (221px wide) -->
+				<A href="#">
+					<IMG id="logo" alt="H.264 Encoder" src="images/logo.png" border="0">
+				</A>
+				<!-- Sidebar Profile links -->
+
+				<UL id="main-nav">
+					<!-- Accordion Menu -->
+					<LI>
+						<A class="nav-top-item no-submenu " href="indexE.html">Status</A>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1MainE.html"> Encoder</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainE.html">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1E.html">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2E.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3E.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="AudioEncodSetE.html">Audio</A>
+							</LI>
+							<LI>
+								<A href="AdvancSetE.html">Advanced</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1MainOsdE.html">OSD</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainOsdE.html">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1OsdE.html">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2OsdE.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3OsdE.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="UplogoE.html">LOGO Upload</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item current" href="SetNetE.html">System</A>
+						<UL>
+							<LI>
+								<A href="SetNetE.html" class="current">Network</A>
+							</LI>
+							<LI id="wifi">
+								<A href="WifiSetE.html">WIFI</A>
+							</LI>
+							<LI id="g4">
+								<A href="g4SetE.html">4G</A>
+							</LI>
+							<LI>
+								<A href="SetPasswordE.html">Password</A>
+							</LI>
+							<LI>
+								<A href="RemserialE.html">Serial to TCP</A>
+							</LI>
+							<LI>
+								<A href="SystemUpdateE.html">Upgrade</A>
+							</LI>
+							<LI>
+								<A href="ResetE.html">Reset</A>
+							</LI>
+							<LI>
+								<A href="RebootE.html">Reboot</A>
+							</LI>
+							<LI>
+								<A href="RestartE.html">Schedule Restart</A>
+							</LI>
+						</UL>
+					</LI>
+				</UL>
+			</DIV>
+		</DIV>
+		<!-- End #sidebar -->
+		<DIV id="main-content">
+			<!-- Main Content Section with everything -->
+			<div style="float:right; margin-right:0px; margin-top:-10px;">
+				<p>Language:&nbsp;
+					<select id='LanSle' onChange="changeLan()">
+						<option value="Chinese">Chinese</option>
+
+						<option value="English" selected="selected">English</option>
+					</select>
+				</p>
+			</div>
+			<!-- End .shortcut-buttons-set -->
+			<DIV class="clear"></DIV>
+			<!-- End .clear -->
+
+			<DIV class="content-box">
+				<!-- Start Content Box -->
+				<DIV class="content-box-header">
+					<H3>Network</H3>
+				</DIV>
+				<!-- End .content-box-header -->
+				<DIV class="content-box-content">
+					<DIV class="tab-content">
+
+
+						<div class="write">
+							<H3>LAN</H3>
+							<dl>
+								<dt>DHCP:</dt>
+								<dd>
+									<select id="dhcp_enable" name="dhcp_enable" onchange="dhcpEnable()">
+										<option value="1">Enable</option>
+										<option value="0" selected="selected">Disable</option>
+									</select>
+								</dd>
+							</dl>
+
+							<dl>
+								<dt>IP:</dt>
+								<dd>
+									<input id="ip0Txt" name="ip0Txt" maxlength="18" type="text" />
+								</dd>
+							</dl>
+
+							<dl>
+								<dt>Netmask:</dt>
+								<dd>
+									<input id="netmask0Txt" name="netmask0Txt" maxlength="18" type="text" />
+								</dd>
+							</dl>
+							<dl>
+								<dt>Gateway:</dt>
+								<dd>
+									<input id="gateway0Txt" name="gateway0Txt" maxlength="18" type="text" />
+								</dd>
+							</dl>
+
+
+							<dl>
+								<dt>MAC:</dt>
+								<dd>
+									<input id="mac0Txt" name="mac0Txt" maxlength="20" type="text" />
+								</dd>
+							</dl>
+
+							<dl></dl>
+							<dl class="line2"></dl>
+
+							<H3>DNS</H3>
+							<dl>
+								<dt>DNS1:</dt>
+								<dd>
+									<input id="dns0Txt" name="dns0Txt" maxlength="18" type="text" />
+								</dd>
+							</dl>
+							<dl>
+								<dt>DNS2:</dt>
+								<dd>
+									<input id="dns1Txt" name="dns1Txt" maxlength="18" type="text" />
+								</dd>
+							</dl>
+
+							<dl></dl>
+							<dl class="line2"></dl>
+
+							<H3>NTP</H3>
+							<dl>
+								<dt>NTP Enable:</dt>
+								<dd>
+									<select id="ntp_enable" name="ntp_enable">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+
+							<dl>
+								<dt>NTP Server:</dt>
+								<dd>
+									<input id="ntp_server" name="ntp_server" maxlength="256" size="24" type="text" />
+								</dd>
+							</dl>
+
+							<dl>
+								<dt>Time Zone:</dt>
+								<dd>
+									<select id="ntp_timezone" name="ntp_timezone">
+										<option value="-12">UTC-12</option>
+										<option value="-11">UTC-11</option>
+										<option value="-10">UTC-10</option>
+										<option value="-9">UTC-9</option>
+										<option value="-8">UTC-8</option>
+										<option value="-7">UTC-7</option>
+										<option value="-6">UTC-6</option>
+										<option value="-5">UTC-5</option>
+										<option value="-4">UTC-4</option>
+										<option value="-3">UTC-3</option>
+										<option value="-2">UTC-2</option>
+										<option value="-1">UTC-1</option>
+										<option value="0" selected="selected">UTC</option>
+										<option value="1">UTC+1</option>
+										<option value="2">UTC+2</option>
+										<option value="3">UTC+3</option>
+										<option value="4">UTC+4</option>
+										<option value="5">UTC+5</option>
+										<option value="6">UTC+6</option>
+										<option value="7">UTC+7</option>
+										<option value="8">UTC+8</option>
+										<option value="9">UTC+9</option>
+										<option value="10">UTC+10</option>
+										<option value="11">UTC+11</option>
+										<option value="12">UTC+12</option>
+									</select>
+								</dd>
+							</dl>
+
+							<dl></dl>
+							<dl class="line2"></dl>
+
+							<H3>Port</H3>
+							<dl>
+								<dt>HTTP Port:</dt>
+								<dd>
+									<input id="http_portTxt" name="http_portTxt" maxlength="20" type="text" /> [1-65500]
+									</dds>
+							</dl>
+							<dl>
+								<dt>RTSP Port:</dt>
+								<dd>
+									<input id="rtsp_portTxt" name="rtsp_portTxt" maxlength="20" type="text" /> [1-65500]
+									</dds>
+							</dl>
+							<dl>
+								<dt>&nbsp;&nbsp;</dt>
+								<dd>
+									<input type="button" class="but" value="Apply" name="insert" onclick="SetIpAjax()" id="subBut" />
+								</dd>
+							</dl>
+
+						</div>
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+
+
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+					</DIV>
+					<!-- End #tab2 -->
+				</DIV>
+				<!-- End .content-box-content -->
+			</DIV>
+			<!-- End .content-box -->
+			<!-- Start Notifications -->
+
+
+		</DIV>
+		<!-- End #main-content -->
+	</DIV>
+</BODY>
+
+</HTML>

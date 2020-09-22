@@ -1,0 +1,855 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+	<TITLE>H.264 Encoder</TITLE>
+	<!--    CSS   -->
+	<!-- Reset Stylesheet -->
+	<LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+	<SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+	<SCRIPT type="text/javascript">
+		var hostip = window.location.host;
+		function GetInputAjax() {
+			ShowWifi();
+			Getalpha();
+			for (var i = 0; i < 4; i++) {
+				GetOSD(i);
+			}
+		}
+
+		function Getalpha() {
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_osd?enc_chn=1&osd_chn=0",
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var alpha = $(data).find("alpha").text();
+					$("#alpha").attr("value", alpha);
+				}
+			});
+		}
+		function GetOSD(num) {
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_osd?enc_chn=1&osd_chn=" + num,
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var select_enable = $(data).find("enable").text();
+					$('#select_enable' + num).attr("value", select_enable);
+					var select_TP = $(data).find("type").text();
+					$('#select_TP' + num).attr("value", select_TP);
+					var x = $(data).find("x").text();
+					$('#x' + num).attr("value", x);
+					var y = $(data).find("y").text();
+					$("#y" + num).attr("value", y);
+					var txt = $(data).find("txt").text();
+					$("#txt" + num).attr("value", txt);
+					var font_size = $(data).find("font_size").text();
+					$("#font_size" + num).attr("value", font_size);
+					var color = parseInt($(data).find("color").text());
+					$("#color" + num).attr("value", color);
+					var tem = color.toString(16);
+					var intleng = 6 - tem.length;
+					for (k = 0; k < intleng; k++) {
+						tem = "0" + tem;
+					}
+					color = "#" + tem;
+					$("#DisColor" + num).css("background-color", color);
+					var bcolor = $(data).find("bcolor").text();
+					$("#bcolor" + num).attr("value", bcolor);
+					var logosel = $(data).find("bmp").text();
+					$("#logosel" + num).attr("value", logosel);
+					OsdShow(select_enable, num);
+					typeshow(select_TP, num)
+				}
+			});
+		}
+
+		function OsdShow(select_enable, num) {
+			if (select_enable == 0) {
+				$("#osd" + num).hide();
+
+			}
+			else {
+				$("#osd" + num).show();
+			}
+		}
+		function typeshow(select_TP, num) {
+			if (select_TP == 0) {
+				$("#txtOsd" + num).show();
+				$("#fontsizeOsd" + num).show();
+				$("#colorOsd" + num).show();
+				$("#colorpanelOsd" + num).show();
+				$("#bcolorOsd" + num).show();
+				$("#logoOsd" + num).hide();
+			}
+			else {
+				$("#txtOsd" + num).hide();
+				$("#fontsizeOsd" + num).hide();
+				$("#colorOsd" + num).hide();
+				$("#colorpanelOsd" + num).hide();
+				$("#bcolorOsd" + num).hide();
+				$("#logoOsd" + num).show();
+			}
+		}
+
+		function changeOsdShow(num) {
+			var select_enable = $('#select_enable' + num).val();
+			OsdShow(select_enable, num);
+		}
+		function changetypeshow(num) {
+			var select_TP = $('#select_TP' + num).val();
+			typeshow(select_TP, num);
+		}
+		function SetInput() {
+			var alpha = $("#alpha").val();
+			var validated = IsvalidatAlpha(alpha);
+			for (var i = 0; i < 4; i++) {
+				var select_enable = $("#select_enable" + i).val();
+				var select_TP = $("#select_TP" + i).val();
+				var txt = $("#txt" + i).val();
+				txt = encodeURIComponent(txt);
+				var font_size = $("#font_size" + i).val();
+				var logosel = $("#logosel" + i).val();
+				var x = $("#x" + i).val();
+				var y = $("#y" + i).val();
+				validated += IsValidate(select_enable, select_TP, font_size, x, y, txt, i, logosel);
+			}
+			if (validated == 0) {
+				var result = 0;
+				for (var i = 0; i < 4; i++) {
+					var select_enable = $("#select_enable" + i).val();
+					var select_TP = $("#select_TP" + i).val();
+					var txt = $("#txt" + i).val();
+					txt = encodeURIComponent(txt);
+					var font_size = $("#font_size" + i).val();
+					var color = $("#color" + i).val();
+					var bcolor = $("#bcolor" + i).val();
+					var logosel = $("#logosel" + i).val();
+					var x = $("#x" + i).val();
+					var y = $("#y" + i).val();
+					result += setosd(i, alpha, select_enable, select_TP, font_size, x, y, txt, color, logosel, bcolor);
+				}
+				if (result == 0) {
+					alert('Set successfully, please reboot your device!');
+				}
+				else {
+					alert('Failed to set!');
+				}
+			}
+		}
+		function setosd(num, alpha, select_enable, select_TP, font_size, x, y, txt, color, logosel, bcolor) {
+			var result = 0;
+			$.ajax({
+				url: "http://" + hostip + "/set_osd?enc_chn=1&osd_chn=" + num + "&alpha=" + alpha + "&txt=" + txt + "&font_size=" + font_size + "&x=" + x + "&y=" + y + "&enable=" + select_enable + "&type=" + select_TP + "&bmp=" + logosel + "&color=" + color + "&bcolor=" + bcolor,
+				dataType: "text",
+				cache: false,
+				success: function (data) {
+					if (data == "succeed") {
+						result = 0;
+					}
+					else {
+						result = 1;
+					}
+				}
+			});
+			return result;
+		}
+		function GetName(num) {
+			var result = "";
+			if (num == 0) {
+				result = "Zone 1";
+			}
+			else if (num == 1) {
+				result = "Zone 2";
+			}
+			else if (num == 2) {
+				result = "Zone 3";
+			}
+			else if (num == 3) {
+				result = "Zone 4";
+			}
+			return result;
+		}
+		function IsvalidatAlpha(alpha) {
+			var validated = 0;
+			var Intalpha = IsInteger(alpha);
+			if (alpha < 0 || alpha > 128 || Intalpha == false) {
+				alert('Alpha should be an integer between 0-128!');
+				validated = 1;
+			}
+			return validated;
+		}
+
+		function IsValidate(select_enable, select_TP, font_size, x, y, txt, num, logosel) {
+			var room = GetName(num);
+			validated = 0;
+			var Intfont_size = IsInteger(font_size);
+			var Intx = IsInteger(x);
+			var Inty = IsInteger(y);
+			if (select_enable == 1) {
+				if (select_TP == 0) {
+					if (x < 0 || x > 1920 || Intx == false) {
+						alert('X should be an integer between 0-1920 for ' + room + '!');
+						validated = 1;
+					}
+					else if (y < 0 || y > 1080 || Inty == false) {
+						alert('Y should be an integer between 0-1080 for ' + room + '!');
+						validated = 1;
+					}
+					else if (txt == "") {
+						alert('Txt cannot be empty for' + room + '!');
+						validated = 1;
+					}
+					else if (font_size < 8 || font_size > 72 || Intfont_size == false) {
+						alert('Font size should be an integer between 8-72 for ' + room + '!');
+						validated = 1;
+					}
+				}
+				else {
+					if (x < 0 || x > 1920 || Intx == false) {
+						alert('X should be an integer between 0-1920 for ' + room + '!');
+						validated = 1;
+					}
+					else if (y < 0 || y > 1080 || Inty == false) {
+						alert('Y should be an integer between 0-1080 for ' + room + '!');
+						validated = 1;
+					}
+					else if (logosel == "" || logosel == null) {
+						alert('Select LOGO for ' + room + '!');
+						validated = 1;
+					}
+				}
+			}
+			return validated;
+		}
+		function IsInteger(interger) {
+			var IsInteger = true;
+			if (parseInt(interger) == interger) {
+				IsInteger = true;
+			}
+			else {
+				IsInteger = false;
+			}
+			return IsInteger;
+		}
+
+		function changeLan() {
+			var Language = $("#LanSle").val();
+			if (Language == 'Chinese') {
+				$.ajax({
+					type: "GET",
+					url: "http://" + hostip + "/set_sys?language=chinese",
+					dataType: "text",
+					cache: false
+				});
+				window.location.href = 'OutputP1MainOsd.html';
+			}
+		}
+		function changeLan() {
+			var Language = $("#LanSle").val();
+			if (Language == 'Chinese') {
+				$.ajax({
+					type: "GET",
+					url: "http://" + hostip + "/set_sys?language=chinese",
+					dataType: "text",
+					cache: false
+				});
+				window.location.href = 'OutputP1Second1Osd.html';
+			}
+		}
+	</SCRIPT>
+	<script type="text/javascript" language="javascript">
+		var ColorHex = new Array('00', '33', '66', '99', 'CC', 'FF');
+		var SpColorHex = new Array('FF0000', '00FF00', '0000FF', 'FFFF00', '00FFFF', 'FF00FF');
+		var current = null;
+		function intocolor(num) {
+			var colorTable = ''
+			for (i = 0; i < 2; i++)   //循环2部分
+			{
+				for (j = 0; j < 6; j++)  //循环6行
+				{
+					colorTable = colorTable + '<tr>'
+					for (k = 0; k < 3; k++) {
+						for (l = 0; l < 6; l++) {
+							colorTable = colorTable + '<td  onclick="doclick(this,' + num + ')" style="background-color:#' + ColorHex[k + i * 3] + ColorHex[l] + ColorHex[j] + '">'
+						}
+					}
+				}
+			}
+			colorTable = '<table border="1" cellspacing="0" cellpadding="0" style="border-collapse: collapse; bordercolor="000000" >'
+				+ colorTable + '</table><a onclick="colorpanelhide(' + num + ')">close</a>';
+			document.getElementById("colorpanel" + num).innerHTML = colorTable;
+		}
+
+
+		function rgbToHex(aa) {
+			if (aa.indexOf("rgb") != -1) {
+				aa = aa.replace("rgb(", "")
+
+				aa = aa.replace(")", "")
+
+				aa = aa.split(",")
+
+				r = parseInt(aa[0]);
+
+				g = parseInt(aa[1]);
+
+				b = parseInt(aa[2]);
+
+				r = r.toString(16);
+
+				if (r.length == 1) { r = '0' + r; }
+
+				g = g.toString(16);
+
+				if (g.length == 1) { g = '0' + g; }
+
+				b = b.toString(16);
+
+				if (b.length == 1) { b = '0' + b; }
+
+				return ("#" + r + g + b).toUpperCase();
+
+			}
+			else {
+				return aa;
+			}
+		}
+
+		function colorpanelshow(num) {
+			intocolor(num);
+			$("#colorpanel" + num).show();
+		}
+		function colorpanelhide(num) {
+			$("#colorpanel" + num).hide();
+		}
+		function doclick(obj, num) {
+			var bg = $(obj).css('background-color');
+			$("#DisColor" + num).css("background", bg);
+			color = getHexColor(bg);
+			$('#color' + num).attr("value", color);
+		}
+		function getHexColor(bg) {
+			var rgb = bg.split('(');
+			var color1 = parseInt(rgb[1].split(',')[0]) << 16;
+			var color2 = parseInt(rgb[1].split(',')[1]) << 8;
+			var color3 = parseInt(rgb[1].split(',')[2]);
+			var color = color1 + color2 + color3;
+			return color;
+		}
+	</script>
+	<META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onLoad="GetInputAjax()">
+	<DIV id="body-wrapper">
+		<DIV id="sidebar">
+			<DIV id="sidebar-wrapper">
+				<H1 id="sidebar-title">
+					<A href="#">H.264 Encoder</A>
+				</H1>
+				<!-- Logo (221px wide) -->
+				<A href="#">
+					<IMG id="logo" alt="H.264 Encoder" src="images/logo.png" border="0">
+				</A>
+				<!-- Sidebar Profile links -->
+				<UL id="main-nav">
+					<!-- Accordion Menu -->
+					<LI>
+						<A class="nav-top-item no-submenu " href="indexE.html">Status</A>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1MainE.html">Encoder</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainE.html">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1E.html">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2E.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3E.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="AudioEncodSetE.html">Audio</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item current" href="OutputP1MainOsdE.html">OSD</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainOsdE.html">Main stream</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1OsdE.html" class="current">Substream1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2OsdE.html">Substream2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3OsdE.html">Substream3</A>
+							</LI>
+							<LI>
+								<A href="UplogoE.html">LOGO Upload</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item " href="SetNetE.html">System</A>
+						<UL>
+							<LI>
+								<A href="SetNetE.html">Network</A>
+							</LI>
+							<LI id="wifi">
+								<A href="WifiSetE.html">WIFI</A>
+							</LI>
+							<LI id="g4">
+								<A href="g4SetE.html">4G</A>
+							</LI>
+							<LI>
+								<A href="SetPasswordE.html">Password</A>
+							</LI>
+							<LI>
+								<A href="RemserialE.html">Serial to TCP</A>
+							</LI>
+							<LI>
+								<A href="SystemUpdateE.html">Upgrade</A>
+							</LI>
+							<LI>
+								<A href="ResetE.html">Reset</A>
+							</LI>
+							<LI>
+								<A href="RebootE.html">Reboot</A>
+							</LI>
+							<LI>
+								<A href="RestartE.html">Schedule Restart</A>
+							</LI>
+						</UL>
+					</LI>
+				</UL>
+			</DIV>
+		</DIV>
+		<!-- End #sidebar -->
+		<DIV id="main-content">
+			<!-- Main Content Section with everything -->
+			<!-- End .shortcut-buttons-set -->
+			<div style="float:right; margin-right:0px; margin-top:-10px;">
+				<p>Language:&nbsp;
+					<select id='LanSle' onChange="changeLan()">
+						<option value="Chinese">Chinese</option>
+
+						<option value="English" selected="selected">English</option>
+					</select>
+				</p>
+			</div>
+
+			<DIV class="clear"></DIV>
+			<!-- End .clear -->
+
+			<DIV class="content-box">
+				<!-- Start Content Box -->
+				<DIV class="content-box-header">
+					<H3>Substream1</H3>
+				</DIV>
+				<!-- End .content-box-header -->
+				<DIV class="content-box-content">
+					<DIV class="tab-content">
+
+						<div class="write">
+							<dl>
+								<dt>Alpha:</dt>
+								<dd>
+									<input id="alpha" name="alpha" maxlength="4" size="36" type="text" /> [0-128]
+								</dd>
+							</dl>
+							<dl></dl>
+							<dl class="line2"></dl>
+							<H3>Zone 1</H3>
+
+							<dl>
+								<dt>Zone:</dt>
+								<dd>
+									<select id="select_enable0" name="select_enable0" onchange="changeOsdShow(0)">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<div id="osd0">
+
+								<dl>
+									<dt>Type:</dt>
+									<dd>
+										<select id="select_TP0" name="select_TP0" onchange="changetypeshow(0)">
+											<option value="0" selected="selected">txt</option>
+											<option value="1">bmp</option>
+										</select>
+									</dd>
+								</dl>
+								<dl>
+									<dt>X:</dt>
+									<dd>
+										<INPUT name="x0" id="x0" type="text" maxlength="5" size="36"> [0-1920]
+									</dd>
+								</dl>
+								<dl>
+									<dt>Y:</dt>
+									<dd>
+										<INPUT name="y0" id="y0" type="text" maxlength="5" size="36"> [0-1080]
+									</dd>
+								</dl>
+								<dl id="txtOsd0">
+									<dt>Text:</dt>
+									<dd>
+										<input id="txt0" name="txt0" maxlength="512" size="36" type="text" />
+									</dd>
+								</dl>
+								<dl id="fontsizeOsd0">
+									<dt>Font Size:</dt>
+									<dd>
+										<input id="font_size0" name="font_size0" maxlength="4" size="36" type="text" /> [8-72]
+									</dd>
+								</dl>
+								<dl id="bcolorOsd0">
+									<dt>Background Color:</dt>
+									<dd>
+										<select id="bcolor0" name="bcolor0">
+											<option value="15856113" selected="selected">transparent</option>
+											<option value="16777215">white</option>
+											<option value="0">black</option>
+										</select>
+									</dd>
+								</dl>
+								<dl id="colorOsd0">
+									<dt>Color:</dt>
+									<dd>
+										<input type="text" name="DisColor0" id="DisColor0" size="8" style="border:solid 1px #707070;background-color:#000000" />
+										<input id="color0" name="color0" maxlength="7" size="36" value="0" type="text" style="display:none" />
+										<a onclick="colorpanelshow(0)">select color</a>
+									</dd>
+								</dl>
+								<dl id="colorpanelOsd0">
+									<dt>&nbsp;</dt>
+									<dd>
+										<div id="colorpanel0" style="display:none;"> </div>
+									</dd>
+								</dl>
+								<dl id="logoOsd0">
+									<dt>Logo:</dt>
+									<dd>
+										<select id="logosel0" name="logosel0">
+											<option value="logo1.bmp" selected="selected">logo1</option>
+											<option value="logo2.bmp">logo2</option>
+											<option value="logo3.bmp">logo3</option>
+											<option value="logo4.bmp">logo4</option>
+										</select>
+									</dd>
+								</dl>
+
+							</div>
+
+							<dl></dl>
+							<dl class="line2"></dl>
+							<H3>Zone 2</H3>
+							<dl>
+								<dt>Zone:</dt>
+								<dd>
+									<select id="select_enable1" name="select_enable1" onchange="changeOsdShow(1)">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<div id="osd1">
+
+								<dl>
+									<dt>Type:</dt>
+									<dd>
+										<select id="select_TP1" name="select_TP1" onchange="changetypeshow(1)">
+											<option value="0" selected="selected">txt</option>
+											<option value="1">bmp</option>
+										</select>
+									</dd>
+								</dl>
+								<dl>
+									<dt>X:</dt>
+									<dd>
+										<INPUT name="x1" id="x1" type="text" maxlength="5" size="36"> [0-1920]
+									</dd>
+								</dl>
+								<dl>
+									<dt>Y:</dt>
+									<dd>
+										<INPUT name="y1" id="y1" type="text" maxlength="5" size="36"> [0-1080]
+									</dd>
+								</dl>
+								<dl id="txtOsd1">
+									<dt>Text:</dt>
+									<dd>
+										<input id="txt1" name="txt1" maxlength="512" size="36" type="text" />
+
+									</dd>
+								</dl>
+								<dl id="fontsizeOsd1">
+									<dt>Font Size:</dt>
+									<dd>
+										<input id="font_size1" name="font_size1" maxlength="4" size="36" type="text" /> [8-72]
+									</dd>
+								</dl>
+								<dl id="bcolorOsd1">
+									<dt>Background Color:</dt>
+									<dd>
+										<select id="bcolor1" name="bcolor1">
+											<option value="15856113" selected="selected">transparent</option>
+											<option value="16777215">white</option>
+											<option value="0">black</option>
+										</select>
+									</dd>
+								</dl>
+								<dl id="colorOsd1">
+									<dt>Color:</dt>
+									<dd>
+										<input type="text" name="DisColor1" id="DisColor1" size="8" style="border:solid 1px #707070;background-color:#000000" />
+										<input id="color1" name="color1" maxlength="7" size="36" value="0" type="text" style="display:none" />
+										<a onclick="colorpanelshow(1)">select color</a>
+									</dd>
+								</dl>
+								<dl id="colorpanelOsd1">
+									<dt>&nbsp;</dt>
+									<dd>
+										<div id="colorpanel1" style="display:none;"> </div>
+									</dd>
+								</dl>
+								<dl id="logoOsd1">
+									<dt>Logo:</dt>
+									<dd>
+										<select id="logosel1" name="logosel1">
+											<option value="logo1.bmp" selected="selected">logo1</option>
+											<option value="logo2.bmp">logo2</option>
+											<option value="logo3.bmp">logo3</option>
+											<option value="logo4.bmp">logo4</option>
+										</select>
+									</dd>
+								</dl>
+
+							</div>
+							<dl></dl>
+							<dl class="line2"></dl>
+							<H3>Zone 3</H3>
+
+							<dl>
+								<dt>Zone:</dt>
+								<dd>
+									<select id="select_enable2" name="select_enable2" onchange="changeOsdShow(2)">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<div id="osd2">
+
+								<dl>
+									<dt>Type:</dt>
+									<dd>
+										<select id="select_TP2" name="select_TP2" onchange="changetypeshow(2)">
+											<option value="0" selected="selected">txt</option>
+											<option value="1">bmp</option>
+										</select>
+									</dd>
+								</dl>
+								<dl>
+									<dt>X:</dt>
+									<dd>
+										<INPUT name="x2" id="x2" type="text" maxlength="5" size="36"> [0-1920]
+									</dd>
+								</dl>
+								<dl>
+									<dt>Y:</dt>
+									<dd>
+										<INPUT name="y2" id="y2" type="text" maxlength="5" size="36"> [0-1080]
+									</dd>
+								</dl>
+								<dl id="txtOsd2">
+									<dt>Text:</dt>
+									<dd>
+										<input id="txt2" name="txt2" maxlength="512" size="36" type="text" />
+
+									</dd>
+								</dl>
+								<dl id="fontsizeOsd2">
+									<dt>Font Size:</dt>
+									<dd>
+										<input id="font_size2" name="font_size2" maxlength="4" size="36" type="text" /> [8-72]
+									</dd>
+								</dl>
+								<dl id="bcolorOsd2">
+									<dt>Background Color:</dt>
+									<dd>
+										<select id="bcolor2" name="bcolor2">
+											<option value="15856113" selected="selected">transparent</option>
+											<option value="16777215">white</option>
+											<option value="0">black</option>
+										</select>
+									</dd>
+								</dl>
+								<dl id="colorOsd2">
+									<dt>Color:</dt>
+									<dd>
+										<input type="text" name="DisColor2" id="DisColor2" size="8" style="border:solid 1px #707070;background-color:#000000" />
+										<input id="color2" name="color2" maxlength="7" size="36" value="0" type="text" style="display:none" />
+										<a onclick="colorpanelshow(2)">select color</a>
+									</dd>
+								</dl>
+								<dl id="colorpanelOsd2">
+									<dt>&nbsp;</dt>
+									<dd>
+										<div id="colorpanel2" style="display:none;"> </div>
+									</dd>
+								</dl>
+								<dl id="logoOsd2">
+									<dt>Logo:</dt>
+									<dd>
+										<select id="logosel2" name="logosel2">
+											<option value="logo1.bmp" selected="selected">logo1</option>
+											<option value="logo2.bmp">logo2</option>
+											<option value="logo3.bmp">logo3</option>
+											<option value="logo4.bmp">logo4</option>
+										</select>
+									</dd>
+								</dl>
+
+							</div>
+							<dl></dl>
+							<dl class="line2"></dl>
+							<H3>Zone 4</H3>
+
+							<dl>
+								<dt>Zone:</dt>
+								<dd>
+									<select id="select_enable3" name="select_enable3" onchange="changeOsdShow(3)">
+										<option value="0" selected="selected">Disable</option>
+										<option value="1">Enable</option>
+									</select>
+								</dd>
+							</dl>
+							<div id="osd3">
+
+								<dl>
+									<dt>Type:</dt>
+									<dd>
+										<select id="select_TP3" name="select_TP3" onchange="changetypeshow(3)">
+											<option value="0" selected="selected">txt</option>
+											<option value="1">bmp</option>
+										</select>
+									</dd>
+								</dl>
+								<dl>
+									<dt>X:</dt>
+									<dd>
+										<INPUT name="x3" id="x3" type="text" maxlength="5" size="36"> [0-1920]
+									</dd>
+								</dl>
+								<dl>
+									<dt>Y:</dt>
+									<dd>
+										<INPUT name="y3" id="y3" type="text" maxlength="5" size="36"> [0-1080]
+									</dd>
+								</dl>
+								<dl id="txtOsd3">
+									<dt>Text:</dt>
+									<dd>
+										<input id="txt3" name="txt3" maxlength="512" size="36" type="text" />
+
+									</dd>
+								</dl>
+								<dl id="fontsizeOsd3">
+									<dt>Font Size:</dt>
+									<dd>
+										<input id="font_size3" name="font_size3" maxlength="4" size="36" type="text" /> [8-72]
+									</dd>
+								</dl>
+								<dl id="bcolorOsd3">
+									<dt>Background Color:</dt>
+									<dd>
+										<select id="bcolor3" name="bcolor3">
+											<option value="15856113" selected="selected">transparent</option>
+											<option value="16777215">white</option>
+											<option value="0">black</option>
+										</select>
+									</dd>
+								</dl>
+								<dl id="colorOsd3">
+									<dt>Color:</dt>
+									<dd>
+										<input type="text" name="DisColor3" id="DisColor3" size="8" style="border:solid 1px #707070;background-color:#000000" />
+										<input id="color3" name="color3" maxlength="7" size="36" value="0" type="text" style="display:none" />
+										<a onclick="colorpanelshow(3)">select color</a>
+									</dd>
+								</dl>
+								<dl id="colorpanelOsd3">
+									<dt>&nbsp;</dt>
+									<dd>
+										<div id="colorpanel3" style="display:none;"> </div>
+									</dd>
+								</dl>
+
+
+								<dl id="logoOsd3">
+									<dt>Logo:</dt>
+									<dd>
+										<select id="logosel3" name="logosel3">
+											<option value="logo1.bmp" selected="selected">logo1</option>
+											<option value="logo2.bmp">logo2</option>
+											<option value="logo3.bmp">logo3</option>
+											<option value="logo4.bmp">logo4</option>
+										</select>
+									</dd>
+								</dl>
+
+							</div>
+
+
+
+
+							<dl>
+								<dt>&nbsp;&nbsp;</dt>
+								<dd>
+									<input type="button" class="but" value="Apply" name="insert" onclick="SetInput()" id="subBut" />
+								</dd>
+							</dl>
+
+						</div>
+
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+
+
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+					</DIV>
+					<!-- End #tab2 -->
+				</DIV>
+				<!-- End .content-box-content -->
+			</DIV>
+			<!-- End .content-box -->
+			<!-- Start Notifications -->
+
+
+		</DIV>
+		<!-- End #main-content -->
+	</DIV>
+</BODY>
+
+</HTML>

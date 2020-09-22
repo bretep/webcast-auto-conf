@@ -1,0 +1,102 @@
+#!/bin/sh
+# Useage: ./load [ -r|-i|-a ][type]
+#         -r : rmmod all modules
+#         -i : insmod all modules
+#    default : rmmod all moules and then insmod them
+#        type: 8d1,8960h,4720p
+
+SDK_TYPE=1xhd
+
+if [ $# -ge 2 ]; then
+    SDK_TYPE=$2
+fi
+
+
+if [ $SDK_TYPE = "8d1" ]; then
+    echo "SDK_TYPE type is $SDK_TYPE"
+elif [ $SDK_TYPE = "8960h" ]; then
+    echo "SDK_TYPE type is $SDK_TYPE"
+elif [ $SDK_TYPE = "1hd" ]; then
+    echo "SDK_TYPE type is $SDK_TYPE" 
+elif [ $SDK_TYPE = "4720p" ]; then
+    echo "SDK_TYPE type is $SDK_TYPE"
+else
+    SDK_TYPE=8d1
+    echo "SDK_TYPE type is $SDK_TYPE"
+fi
+
+report_error()
+{
+    echo "******* Error!! Shell exit for error *****"
+    exit 1
+}
+
+insert_audio()
+{
+    insmod hi3520D_sio.ko
+    insmod hi3520D_ai.ko
+    insmod hi3520D_ao.ko
+    insmod hi3520D_aenc.ko
+    insmod hi3520D_adec.ko
+}
+
+remove_audio()
+{
+    rmmod hi3520D_adec
+    rmmod hi3520D_aenc
+    rmmod hi3520D_ao
+    rmmod hi3520D_ai
+    rmmod hi3520D_sio
+}
+
+insert_ko()
+{
+   
+   if [ $SDK_TYPE = "1hd" ]; then
+       sh ./pinmux_8D1_hi3520D.sh  > /dev/null
+       sh ./crgctrl_1X1080P_hi3520D.sh > /dev/null 
+   fi
+   
+    insmod mmz.ko mmz=anonymous,0,0x86000000,154M:jpeg,0,0x8fa00000,5M anony=1 || report_error
+    insmod hiuser.ko
+    insmod hi3520D_base.ko
+    insmod hi3520D_sys.ko
+    insmod hi3520D_tde.ko g_u32TdeTmpBufW=800 g_u32TdeTmpBufH=600
+    insmod hi3520D_dsu.ko
+    insmod hi3520D_venc.ko
+    insmod hi3520D_group.ko
+    insmod hi3520D_chnl.ko
+    insmod hi3520D_h264e.ko
+    insmod hi3520D_rc.ko
+    insmod hi3520D_jpege.ko
+    insmod hi3520D_viu.ko
+    insmod hi3520D_vou.ko
+    insmod hi3520D_vpss.ko
+    insmod hi3520D_ive.ko
+    insmod hi3520D_vda.ko
+    insmod hi3520D_region.ko
+    insmod vcmp.ko
+    insmod hi3520D_vdec.ko
+    insmod hi3520D_vfmw.ko
+    insmod hi3520D_jpegd.ko
+    
+    insmod extdrv/wdt.ko default_margin=30 nowayout=1 nodeamon=1
+    insmod extdrv/gpioi2c.ko
+    insmod extdrv/it6604drv.ko
+    insmod extdrv/alpu_c.ko
+   insmod extdrv/8192du.ko
+#    insmod extdrv/8188eu.ko
+    insert_audio
+    sh ./sysctl_hi3520D.sh > /dev/null
+}
+
+# load module.
+if [ "$1" = "-i" ]
+then
+    insert_ko
+fi
+
+if [ $# -eq 0 ] || [ "$1" = "-a" ]
+then
+    insert_ko
+fi

@@ -1,0 +1,60 @@
+.button {
+	border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+}
+#main-content table tfoot td .bulk-actions select {
+	border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+}
+.pagination a.number {
+	border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+}
+form input.text-input {
+	border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+}
+form textarea {
+	border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+}
+form .wysiwyg {
+	border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+}
+form select {
+	border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+}
+.dp-popup {
+	border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px;
+}
+.content-box {
+	border-radius: 6px; -moz-border-radius: 6px; -webkit-border-radius: 6px;
+}
+.content-box-header {
+	border-radius: 6px; -moz-border-radius: 6px; -webkit-border-radius: 6px;
+}
+ul.content-box-tabs li a.current {
+	border-radius: 6px; -moz-border-radius: 6px; -webkit-border-radius: 6px;
+}
+.shortcut-button {
+	border-radius: 6px; -moz-border-radius: 6px; -webkit-border-radius: 6px;
+}
+.notification {
+	border-radius: 6px; -moz-border-radius: 6px; -webkit-border-radius: 6px;
+}
+.content-box-header {
+	border-bottom-right-radius: 0px; border-bottom-left-radius: 0px; -moz-border-radius-bottomleft: 0; -moz-border-radius-bottomright: 0; -webkit-border-bottom-left-radius: 0; -webkit-border-bottom-right-radius: 0;
+}
+.closed-box .content-box-header {
+	border-bottom-right-radius: 6px; border-bottom-left-radius: 6px; -moz-border-radius-bottomleft: 6px; -moz-border-radius-bottomright: 6px; -webkit-border-bottom-left-radius: 6px; -webkit-border-bottom-right-radius: 6px;
+}
+ul.content-box-tabs li a.current {
+	border-bottom-right-radius: 0px; border-bottom-left-radius: 0px; -moz-border-radius-bottomleft: 0; -moz-border-radius-bottomright: 0; -webkit-border-bottom-left-radius: 0; -webkit-border-bottom-right-radius: 0;
+}
+.shortcut-button span {
+	border-radius: 7px; -moz-border-radius: 7px; -webkit-border-radius: 7px;
+}
+div.wysiwyg ul.panel li a {
+	opacity: 0.6;
+}
+div.wysiwyg ul.panel li a:hover {
+	opacity: 0.99;
+}
+div.wysiwyg ul.panel li a.active {
+	opacity: 0.99;
+}

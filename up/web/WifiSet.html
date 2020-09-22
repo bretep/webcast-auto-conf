@@ -1,0 +1,773 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+	<TITLE>编码器</TITLE>
+	<LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+	<LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+	<meta name="renderer" content="ie-comp">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta http-equiv="Expires" content="0">
+	<SCRIPT type="text/javascript" src="js/jquery-1.3.2.min.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+	<SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+	<SCRIPT type="text/javascript">
+		var hostip = window.location.host;
+		function GetWIFISSID(num) {
+			var result = '<select id="ap' + num + '" name="ap" onchange=setssid(' + num + ')>';
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_wifi",
+				dataType: "xml",
+				cache: false,
+				async: false,
+				success: function (data) {
+					var nodeList = $(data).find("ap");
+					for (var i = 0; i < nodeList.length; i++) {
+						var ssid = $(data).find("ap[id=" + i + "]").children("ssid").text();
+						var mac = $(data).find("ap[id=" + i + "]").children("mac").text();
+						mac = mac.toUpperCase();
+						var level = $(data).find("ap[id=" + i + "]").children("level").text();
+						var frequency = $(data).find("ap[id=" + i + "]").children("frequency").text();
+						result += '<option value="' + ssid + '">' + ssid + '(' + mac + '/' + level + 'dB/' + frequency + 'MHz)</option>';
+					}
+				}
+			});
+			result += '</select>&nbsp;&nbsp;<a onclick="GetWIFISSID(' + num + ')">刷新</a>';
+			$("#wifi_ap" + num).html(result);
+		}
+
+		function setssid(num) {
+			var ssid = $("#ap" + num).val();
+			$("#wifi_essid" + num).attr("value", ssid);
+		}
+        function onSelectWifiBandChanged()
+        {
+            var hw_mode = $("#wifi_hostap_hw_mode").val();
+            if(hw_mode == "g"){//2.4g
+                $("#wifi_hostap_channel").find("option").remove();
+
+                for(var i = 1; i <= 14; ++i){
+                    $("#wifi_hostap_channel").append("<option value='" + i + "'>" + i + "</option>");
+                }
+            }
+            else if(hw_mode == "a"){//5g
+                $("#wifi_hostap_channel").find("option").remove();
+                
+                var array_chn = [36,44,52,60,149,157];
+                for(var i = 0; i < array_chn.length; ++i){
+                    $("#wifi_hostap_channel").append("<option value='" + array_chn[i] + "'>" + array_chn[i] + "</option>");
+                }
+            }
+        }
+		function GetNetajax() {
+			ShowWifi();
+			$.ajax({
+				type: "GET",
+				url: "http://" + hostip + "/get_sys",
+				dataType: "xml",
+				cache: false,
+				success: function (data) {
+					var wifi_ap_mode = $(data).find("sys").children("wifi_ap_mode").text();
+					$("#wifi_ap_mode").attr("value", wifi_ap_mode);
+					Show_wifi_mode(wifi_ap_mode);
+					var wifi_enable = $(data).find("sys").children("wifi_enable").text();
+					$("#wifi_enable").attr("value", wifi_enable);
+					var wifi_hostap_essid = $(data).find("sys").children("wifi_hostap_essid").text();
+					$("#wifi_hostap_essid").attr("value", wifi_hostap_essid);
+					var wifi_hostap_psk = $(data).find("sys").children("wifi_hostap_psk").text();
+					$("#wifi_hostap_psk").attr("value", wifi_hostap_psk);
+                    var wifi_hostap_hw_mode = $(data).find("sys").children("wifi_hostap_hw_mode").text();
+                    $("#wifi_hostap_hw_mode").attr("value", wifi_hostap_hw_mode);
+                    onSelectWifiBandChanged();
+					var wifi_hostap_channel = $(data).find("sys").children("wifi_hostap_channel").text();
+					$("#wifi_hostap_channel").attr("value", wifi_hostap_channel);
+					for (var i = 0; i < 3; i++) {
+						var wifi_essid = $(data).find("wifi[id=" + i + "]").children("wifi_essid").text();
+						var wifi_psk = $(data).find("wifi[id=" + i + "]").children("wifi_psk").text();
+						var wifi_ip = $(data).find("wifi[id=" + i + "]").children("wifi_ip").text();
+						var wifi_netmask = $(data).find("wifi[id=" + i + "]").children("wifi_netmask").text();
+						var wifi_gateway = $(data).find("wifi[id=" + i + "]").children("wifi_gateway").text();
+						var wifi_dhcp_enable = $(data).find("wifi[id=" + i + "]").children("wifi_dhcp_enable").text();
+						$("#wifi_dhcp_enable" + i).attr("value", wifi_dhcp_enable);
+						$("#wifi_ip" + i).attr("value", wifi_ip);
+						$("#wifi_enable" + i).attr("value", wifi_enable);
+						$("#wifi_netmask" + i).attr("value", wifi_netmask);
+						$("#wifi_gateway" + i).attr("value", wifi_gateway);
+						$("#wifi_essid" + i).attr("value", wifi_essid);
+						$("#wifi_psk" + i).attr("value", wifi_psk);
+						wifi_dhcpEnable(i);
+						GetWIFISSID(i);
+						if (wifi_essid == "") {
+							$("#ap_Enable" + i).attr("value", 0);
+							$("dl[name='ap_index" + i + "']").hide();
+						}
+						else {
+							$("#ap_Enable" + i).attr("value", 1);
+							$("dl[name='ap_index" + i + "']").show();
+						}
+					}
+				}
+			});
+		}
+
+		function ap_indexEnable(num) {
+			var ap_index = $("#ap_Enable" + num).val();
+			if (ap_index == 0) {
+				$("dl[name='ap_index" + num + "']").hide();
+				$("#wifi_essid" + num).attr("value", "");
+			}
+			else {
+				$("dl[name='ap_index" + num + "']").show();
+			}
+		}
+
+		function SetIpAjax() {
+			var Validate = IsValidate();
+			if (Validate == true) {
+				var urlstr = "";
+				var resultnum = 0;
+				var wifi_enable = $("#wifi_enable").val();
+				var wifi_ap_mode = $("#wifi_ap_mode").val();
+				if (wifi_ap_mode == "0") {
+					for (var i = 0; i < 3; i++) {
+						var wifi_dhcp_enable = $("#wifi_dhcp_enable" + i).val();
+						var wifi_essid = $("#wifi_essid" + i).val();
+						var wifi_psk = $("#wifi_psk" + i).val();
+						wifi_essid = encodeURIComponent(wifi_essid);
+						wifi_psk = encodeURIComponent(wifi_psk);
+						var wifi_ip = $("#wifi_ip" + i).val();
+						var wifi_netmask = $("#wifi_netmask" + i).val();
+						var wifi_gateway = $("#wifi_gateway" + i).val();
+						urlstr = "http://" + hostip + "/set_sys?wifi_ap_mode=" + wifi_ap_mode + "&wifi_enable=" + wifi_enable + "&wifi_essid=" + wifi_essid + "&wifi_psk=" + wifi_psk + "&wifi_ip=" + wifi_ip + "&wifi_netmask=" + wifi_netmask + "&wifi_gateway=" + wifi_gateway + "&wifi_dhcp_enable=" + wifi_dhcp_enable + "&wifi_index=" + i;
+
+						$.ajax({
+							type: "GET",
+							url: urlstr,
+							dataType: "text",
+							cache: false,
+							success: function (data) {
+								if (data == "succeed") {
+									resultnum += 0
+								}
+								else {
+									resultnum += 1;
+								}
+							}
+						});
+
+					}
+				}
+				else {
+					var wifi_hostap_essid = $("#wifi_hostap_essid").val();
+					var wifi_hostap_psk = $("#wifi_hostap_psk").val();
+                    var wifi_hostap_band = $("#wifi_hostap_hw_mode").val();
+					var wifi_hostap_channel = $("#wifi_hostap_channel").val();
+
+					urlstr = "http://" + hostip + "/set_sys?wifi_ap_mode=" + wifi_ap_mode + "&wifi_enable=" + wifi_enable + "&wifi_hostap_essid=" + wifi_hostap_essid + "&wifi_hostap_psk=" + wifi_hostap_psk + "&wifi_hostap_channel=" + wifi_hostap_channel + "&wifi_hostap_hw_mode=" + wifi_hostap_band;
+
+					$.ajax({
+						type: "GET",
+						url: urlstr,
+						dataType: "text",
+						cache: false,
+						success: function (data) {
+							if (data == "succeed") {
+								num = 0
+							}
+							else {
+								num = 1;
+							}
+						}
+					});
+				}
+				if (resultnum == 0) {
+					alert('设置成功,请重启设备！');
+				}
+				else {
+					alert('设置失败！');
+				}
+			}
+		}
+		function change_wifi_mode() {
+			var wifi_mode = $("#wifi_ap_mode").val();
+			Show_wifi_mode(wifi_mode)
+		}
+		function Show_wifi_mode(wifi_mode) {
+			if (wifi_mode == "0") {
+				$("#ap_mode").hide();
+				$("#sta_mode").show();
+			}
+			else {
+				$("#ap_mode").show();
+				$("#sta_mode").hide();
+			}
+		}
+		function wifi_dhcpEnable(num) {
+			var dhcp = $("#wifi_dhcp_enable" + num).val();
+			if (dhcp == 0) {
+				$("#wifi_ip" + num).removeAttr("disabled");
+				$("#wifi_netmask" + num).removeAttr("disabled");
+				$("#wifi_gateway" + num).removeAttr("disabled");
+			}
+			else {
+				$("#wifi_ip" + num).attr("disabled", "disabled");
+				$("#wifi_netmask" + num).attr("disabled", "disabled");
+				$("#wifi_gateway" + num).attr("disabled", "disabled");
+			}
+		}
+
+		function ip_ok(Textstr, alertstr1, alertstr2, TextType) {
+			var validated = true;
+			if (Textstr == "") {
+				alert('WIFI' + alertstr1 + '中的' + alertstr2 + '不能为空！');
+				validated = false;
+			}
+			else {
+				if (TextType == 0) {
+					if (!checkIp(Textstr)) {
+						alert('WIFI' + alertstr1 + '中的' + alertstr2 + '格式不正确！');
+						validated = false;
+					}
+				}
+				else {
+					if (!checkNetmask(Textstr)) {
+						alert('WIFI' + alertstr1 + '中的' + alertstr2 + '格式不正确！');
+						validated = false;
+					}
+				}
+			}
+			return validated;
+		}
+		function CheckMain(wifi_ip, wifi_netmask, wifi_gateway)//检查主配置
+		{
+			var validated = true;
+			validated = ip_ok(wifi_ip, "主配置", "IP地址", 0);
+			if (validated) {
+				validated = ip_ok(wifi_netmask, "主配置", "子网掩码", 1);
+			}
+			if (validated) {
+				validated = ip_ok(wifi_gateway, "主配置", "默认网关", 0);
+			}
+			return validated;
+		}
+
+		function CheckBackup(wifi_ip, wifi_netmask, wifi_gateway, Backupstr) {
+			var validated = true;
+			validated = ip_ok(wifi_ip, Backupstr, "IP地址", 0);
+			if (validated) {
+				validated = ip_ok(wifi_netmask, Backupstr, "子网掩码", 1);
+			}
+			if (validated) {
+				validated = ip_ok(wifi_gateway, Backupstr, "默认网关", 0);
+			}
+			return validated;
+		}
+
+		function IsValidate() {
+			var validated = true;
+			var wifi_enable = $("#wifi_enable").val();
+			if (wifi_enable == 1) {
+				var wifi_ap_mode = $("#wifi_ap_mode").val();
+				if (wifi_ap_mode == "1") {
+					var wifi_hostap_essid = $("#wifi_hostap_essid").val();
+					var wifi_hostap_psk = $("#wifi_hostap_psk").val();
+					validated = ChecAp(wifi_hostap_essid, wifi_hostap_psk);
+				}
+				else {
+					var wifi_dhcp_enable0 = $("#wifi_dhcp_enable0").val();
+					var wifi_ip0 = $("#wifi_ip0").val();
+					var wifi_netmask0 = $("#wifi_netmask0").val();
+					var wifi_gateway0 = $("#wifi_gateway0").val();
+					var wifi_dhcp_enable1 = $("#wifi_dhcp_enable1").val();
+					var ap_Enable1 = $("#ap_Enable1").val();
+					var wifi_ip1 = $("#wifi_ip1").val();
+					var wifi_netmask1 = $("#wifi_netmask1").val();
+					var wifi_gateway1 = $("#wifi_gateway1").val();
+
+					var wifi_dhcp_enable2 = $("#wifi_dhcp_enable2").val();
+					var ap_Enable2 = $("#ap_Enable2").val();
+					var wifi_ip2 = $("#wifi_ip2").val();
+					var wifi_netmask2 = $("#wifi_netmask2").val();
+					var wifi_gateway2 = $("#wifi_gateway2").val();
+					if (wifi_dhcp_enable0 == 0) {
+						validated = CheckMain(wifi_ip0, wifi_netmask0, wifi_gateway0);
+					}
+					if (ap_Enable1 == 1) {
+						if (wifi_dhcp_enable1 == 0) {
+							validated = CheckBackup(wifi_ip1, wifi_netmask1, wifi_gateway1, "备用配置1");
+						}
+					}
+					if (ap_Enable2 == 1) {
+						if (wifi_dhcp_enable2 == 0) {
+							validated = CheckBackup(wifi_ip2, wifi_netmask2, wifi_gateway2, "备用配置2");
+						}
+					}
+				}
+			}
+			return validated;
+		}
+		function ChecAp(wifi_hostap_essid, wifi_hostap_psk) {
+			var validated = true;
+			if (wifi_hostap_essid == "") {
+				alert("Wifi Essid 不能为空！");
+				validated = false;
+			}
+			else if (wifi_hostap_psk.length < 8) {
+				alert("Wifi 密码必须大于等于8位!");
+				validated = false;
+			}
+			return validated;
+		}
+		//判断IP
+		function checkIp(str) {
+			var ss = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+			return ss.test(str);
+		}
+		//判断Mac
+		function CheckMac(str) {
+			var reg_name = /^[a-fA-F\d]{2}:[a-fA-F\d]{2}:[a-fA-F\d]{2}:[a-fA-F\d]{2}:[a-fA-F\d]{2}:[a-fA-F\d]{2}$/;
+			return reg_name.test(str);
+		}
+
+		function checkNetmask(str) {
+			var ss = /^(254|252|248|240|224|192|128|0)\.0\.0\.0|255\.(254|252|248|240|224|192|128|0)\.0\.0|255\.255\.(254|252|248|240|224|192|128|0)\.0|255\.255\.255\.(254|252|248|240|224|192|128|0)$/;
+			return ss.test(str);
+		}
+		function IsInteger(interger) {
+			var IsInteger = true;
+			if (parseInt(interger) == interger) {
+				IsInteger = true;
+			}
+			else {
+				IsInteger = false;
+			}
+			return IsInteger;
+		}
+		function changeLan() {
+			var Language = $("#LanSle").val();
+			if (Language == 'English') {
+				$.ajax({
+					type: "GET",
+					url: "http://" + hostip + "/set_sys?language=english",
+					dataType: "text",
+					cache: false
+				});
+				window.location.href = 'WifiSetE.html';
+			}
+		}
+
+	</SCRIPT>
+	<META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onLoad="GetNetajax()">
+	<DIV id="body-wrapper">
+		<DIV id="sidebar">
+			<DIV id="sidebar-wrapper">
+				<H1 id="sidebar-title">
+					<A href="#">编码器</A>
+				</H1>
+				<!-- Logo (221px wide) -->
+				<A href="#">
+					<IMG id="logo" alt="编码器" src="images/logo.png" border="0">
+				</A>
+				<!-- Sidebar Profile links -->
+				<UL id="main-nav">
+					<!-- Accordion Menu -->
+					<LI>
+						<A class="nav-top-item no-submenu " href="index.html">状态显示</A>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1Main.html"> 编码设置</A>
+						<UL>
+							<LI>
+								<A href="OutputP1Main.html">主码流</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1.html">次码流1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2.html">次码流2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3.html">次码流3</A>
+							</LI>
+							<LI>
+								<A href="AudioEncodSet.html">音频设置</A>
+							</LI>
+							<LI>
+								<A href="AdvancSet.html">高级设置</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item" href="OutputP1MainOsd.html">OSD设置</A>
+						<UL>
+							<LI>
+								<A href="OutputP1MainOsd.html">主码流</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second1Osd.html">次码流1</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second2Osd.html">次码流2</A>
+							</LI>
+							<LI>
+								<A href="OutputP1Second3Osd.html">次码流3</A>
+							</LI>
+							<LI>
+								<A href="Uplogo.html">LOGO上传</A>
+							</LI>
+						</UL>
+					</LI>
+					<LI>
+						<A class="nav-top-item current" href="SetNet.html">系统设置</A>
+						<UL>
+							<LI>
+								<A href="SetNet.html">网络设置</A>
+							</LI>
+
+							<LI id="wifi">
+								<A href="WifiSet.html" class="current">WIFI设置</A>
+							</LI>
+							<LI id="g4">
+								<A href="g4Set.html">4G设置</A>
+							</LI>
+							<LI>
+								<A href="SetPassword.html">密码设置</A>
+							</LI>
+							<LI>
+								<A href="Remserial.html">串口透传</A>
+							</LI>
+							<LI>
+								<A href="SystemUpdate.html">系统更新</A>
+							</LI>
+							<LI>
+								<A href="Reset.html">恢复出厂设置</A>
+							</LI>
+							<LI>
+								<A href="Reboot.html">重启设备</A>
+							</LI>
+							<LI>
+								<A href="Restart.html">定时重启</A>
+							</LI>
+						</UL>
+					</LI>
+				</UL>
+			</DIV>
+		</DIV>
+		<!-- End #sidebar -->
+		<DIV id="main-content">
+			<!-- Main Content Section with everything -->
+			<div style="float:right; margin-right:0px; margin-top:-10px;">
+				<p>语言:&nbsp;
+					<select id='LanSle' onChange="changeLan()">
+						<option value="Chinese" selected="selected">中文</option>
+
+						<option value="English">英文</option>
+					</select>
+				</p>
+			</div>
+
+			<!-- End .shortcut-buttons-set -->
+			<DIV class="clear"></DIV>
+			<!-- End .clear -->
+
+			<DIV class="content-box">
+				<!-- Start Content Box -->
+				<DIV class="content-box-header">
+					<H3>WIFI</H3>
+				</DIV>
+				<!-- End .content-box-header -->
+				<DIV class="content-box-content">
+					<DIV class="tab-content">
+						<div class="write">
+							<H3>WIFI设置</H3>
+
+							<dl>
+								<dt>Wifi 模块：</dt>
+								<dd>
+									<select id="wifi_enable" name="wifi_enable">
+										<option value="0" selected="selected">禁用</option>
+										<option value="1">启用</option>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>Wifi 模式：</dt>
+								<dd>
+									<select id="wifi_ap_mode" name="wifi_ap_mode" onchange="change_wifi_mode()">
+										<option value="0" selected="selected">STA模式</option>
+										<option value="1">AP模式</option>
+									</select>
+								</dd>
+							</dl>
+							<dl></dl>
+							<dl class="line2"></dl>
+							<div id="sta_mode">
+								<H3>WIFI主配置</H3>
+								<dl>
+									<dt>Wifi 列表：</dt>
+									<dd id="wifi_ap0">
+
+									</dd>
+								</dl>
+								<dl>
+									<dt>Wifi Essid：</dt>
+									<dd>
+										<input id="wifi_essid0" name="wifi_essid" valid="required" maxlength="128" type="text" />
+									</dd>
+								</dl>
+								<dl>
+									<dt>Wifi 密码：</dt>
+									<dd>
+										<input id="wifi_psk0" name="wifi_psk" valid="required" maxlength="128" type="text" />
+
+									</dd>
+								</dl>
+
+								<dl>
+									<dt>Wifi DHCP：</dt>
+									<dd>
+										<select id="wifi_dhcp_enable0" name="wifi_dhcp_enable" onChange="wifi_dhcpEnable(0)">
+											<option value="1">启用</option>
+											<option value="0" selected="selected">禁用</option>
+										</select>
+										&nbsp;&nbsp;开启DHCP后，可以从状态显示页查看IP地址。
+									</dd>
+								</dl>
+
+								<dl>
+									<dt>Wifi IP：</dt>
+									<dd>
+										<input id="wifi_ip0" name="wifi_ip" valid="required" maxlength="18" type="text" />
+
+									</dd>
+								</dl>
+
+								<dl>
+									<dt>Wifi 子网掩码：</dt>
+									<dd>
+										<input id="wifi_netmask0" name="wifi_netmask" valid="required" maxlength="18" type="text" />
+
+									</dd>
+								</dl>
+								<dl>
+									<dt>Wifi 默认网关：</dt>
+									<dd>
+										<input id="wifi_gateway0" name="wifi_gateway" valid="required" maxlength="18" type="text" />
+									</dd>
+								</dl>
+								<dl></dl>
+								<dl class="line2"></dl>
+
+								<H3>WIFI备用配置1</H3>
+								<dl>
+									<dt>WIFI备用配置1：</dt>
+									<dd>
+										<select id="ap_Enable1" onChange="ap_indexEnable(1)">
+											<option value="1">启用</option>
+											<option value="0" selected="selected">禁用</option>
+										</select>
+									</dd>
+								</dl>
+								<dl name="ap_index1">
+									<dt>Wifi 列表：</dt>
+									<dd id="wifi_ap1">
+
+									</dd>
+								</dl>
+								<dl name="ap_index1">
+									<dt>Wifi Essid：</dt>
+									<dd>
+										<input id="wifi_essid1" name="wifi_essid" valid="required" maxlength="50" type="text" />
+									</dd>
+								</dl>
+								<dl name="ap_index1">
+									<dt>Wifi 密码：</dt>
+									<dd>
+										<input id="wifi_psk1" name="wifi_psk" valid="required" maxlength="128" type="text" />
+
+									</dd>
+								</dl>
+
+								<dl name="ap_index1">
+									<dt>Wifi DHCP：</dt>
+									<dd>
+										<select id="wifi_dhcp_enable1" name="wifi_dhcp_enable" onChange="wifi_dhcpEnable(1)">
+											<option value="1">启用</option>
+											<option value="0" selected="selected">禁用</option>
+										</select>
+										&nbsp;&nbsp;开启DHCP后，可以从状态显示页查看IP地址。
+									</dd>
+								</dl>
+
+								<dl name="ap_index1">
+									<dt>Wifi IP：</dt>
+									<dd>
+										<input id="wifi_ip1" name="wifi_ip" valid="required" maxlength="18" type="text" />
+
+									</dd>
+								</dl>
+
+								<dl name="ap_index1">
+									<dt>Wifi 子网掩码：</dt>
+									<dd>
+										<input id="wifi_netmask1" name="wifi_netmask" valid="required" maxlength="18" type="text" />
+
+									</dd>
+								</dl>
+								<dl name="ap_index1">
+									<dt>Wifi 默认网关：</dt>
+									<dd>
+										<input id="wifi_gateway1" name="wifi_gateway" valid="required" maxlength="18" type="text" />
+									</dd>
+								</dl>
+
+								<dl></dl>
+								<dl class="line2"></dl>
+
+								<H3>WIFI备用配置2</H3>
+								<dl>
+									<dt>WIFI备用配置2：</dt>
+									<dd>
+										<select id="ap_Enable2" onChange="ap_indexEnable(2)">
+											<option value="1">启用</option>
+											<option value="0" selected="selected">禁用</option>
+										</select>
+									</dd>
+								</dl>
+								<dl name="ap_index2">
+									<dt>Wifi 列表：</dt>
+									<dd id="wifi_ap2">
+
+									</dd>
+								</dl>
+								<dl name="ap_index2">
+									<dt>Wifi Essid：</dt>
+									<dd>
+										<input id="wifi_essid2" name="wifi_essid" valid="required" maxlength="50" type="text" />
+									</dd>
+								</dl>
+								<dl name="ap_index2">
+									<dt>Wifi 密码：</dt>
+									<dd>
+										<input id="wifi_psk2" name="wifi_psk" valid="required" maxlength="18" type="text" />
+
+									</dd>
+								</dl>
+
+								<dl name="ap_index2">
+									<dt>Wifi DHCP：</dt>
+									<dd>
+										<select id="wifi_dhcp_enable2" name="wifi_dhcp_enable" onChange="wifi_dhcpEnable(2)">
+											<option value="1">启用</option>
+											<option value="0" selected="selected">禁用</option>
+										</select>
+										&nbsp;&nbsp;开启DHCP后，可以从状态显示页查看IP地址。
+									</dd>
+								</dl>
+
+								<dl name="ap_index2">
+									<dt>Wifi IP：</dt>
+									<dd>
+										<input id="wifi_ip2" name="wifi_ip" valid="required" maxlength="18" type="text" />
+
+									</dd>
+								</dl>
+
+								<dl name="ap_index2">
+									<dt>Wifi 子网掩码：</dt>
+									<dd>
+										<input id="wifi_netmask2" name="wifi_netmask" valid="required" maxlength="18" type="text" />
+
+									</dd>
+								</dl>
+								<dl name="ap_index2">
+									<dt>Wifi 默认网关：</dt>
+									<dd>
+										<input id="wifi_gateway2" name="wifi_gateway" valid="required" maxlength="18" type="text" />
+									</dd>
+								</dl>
+							</div>
+
+							<div id="ap_mode">
+								<H3>AP模式</H3>
+								<dl>
+									<dt>Wifi Essid：</dt>
+									<dd>
+										<input id="wifi_hostap_essid" name="wifi_hostap_essid" maxlength="50" type="text" />
+									</dd>
+								</dl>
+								<dl>
+									<dt>Wifi 密码：</dt>
+									<dd>
+										<input id="wifi_hostap_psk" name="wifi_hostap_psk" maxlength="128" type="text" />
+
+									</dd>
+								</dl>
+                                <dl>
+                                    <dt>Wifi 频段：</dt>
+                                    <dd>
+                                        <select id="wifi_hostap_hw_mode" name="wifi_hostap_hw_mode" onchange="onSelectWifiBandChanged()">
+                                            <option value="g" selected="selected">2.4G</option>
+                                            <option value="a">5G</option>
+                                        </select>
+                                    </dd>
+                                </dl>
+								<dl>
+									<dt>Wifi 频道：</dt>
+									<dd>
+										<select id="wifi_hostap_channel" name="wifi_hostap_channel">
+											<option value="1" selected="selected">1</option>
+											<option value="2">2</option>
+											<option value="3">3</option>
+											<option value="4">4</option>
+											<option value="5">5</option>
+											<option value="6">6</option>
+											<option value="7">7</option>
+											<option value="8">8</option>
+											<option value="9">9</option>
+											<option value="10">10</option>
+											<option value="11">11</option>
+											<option value="12">12</option>
+											<option value="13">13</option>
+										</select>
+									</dd>
+								</dl>
+							</div>
+							<dl>
+								<dt>&nbsp;&nbsp;</dt>
+								<dd>
+									<input type="button" class="but" value="设 置" name="insert" onclick="SetIpAjax()" id="subBut" />
+								</dd>
+							</dl>
+
+						</div>
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+
+
+						<DIV class="clear"></DIV>
+						<!-- End .clear -->
+					</DIV>
+					<!-- End #tab2 -->
+				</DIV>
+				<!-- End .content-box-content -->
+			</DIV>
+			<!-- End .content-box -->
+			<!-- Start Notifications -->
+
+
+		</DIV>
+		<!-- End #main-content -->
+	</DIV>
+</BODY>
+
+</HTML>

@@ -1,0 +1,335 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<HTML xmlns="http://www.w3.org/1999/xhtml">
+
+<HEAD>
+  <TITLE>编码器</TITLE>
+  <LINK rel="stylesheet" type="text/css" href="css/reset.css" media="screen">
+  <LINK rel="stylesheet" type="text/css" href="css/style.css" media="screen">
+  <LINK rel="stylesheet" type="text/css" href="css/invalid.css" media="screen">
+  <LINK rel="stylesheet" type="text/css" href="css/jquery.percentageloader-0.1.css">
+  <script src="js/jquery-1.4.1.min.js" type="text/javascript"></script>
+  <script type="text/javascript" src="js/ajaxfileupload.js"></script>
+  <script type="text/javascript" src="js/jquery.percentageloader-0.1.js"></script>
+  <SCRIPT type="text/javascript" src="js/simpla.jquery.configuration.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/jquery.wysiwyg.js"></SCRIPT>
+  <SCRIPT type="text/javascript" src="js/wifishow.js"></SCRIPT>
+  <SCRIPT type="text/javascript">
+    //升级系统 
+    var hostip = window.location.host;
+    var upgrade_filename = "";
+    function GetVersion() {
+      ShowWifi();
+      $.ajax({
+        type: "GET",
+        url: "http://" + hostip + "/get_version",
+        dataType: "xml",
+        cache: false,
+        success: function (data) {
+
+          var version = $(data).find("version").text();
+          $("#version").append(version);
+        }
+      });
+    }
+
+    //升级系统  
+    var id = "";
+    function Upload() {
+      var upgrade = $("#upgrade").val();
+      upgrade_filename = upgrade;
+      if (upgrade == "") {
+        alert("请选择上传文件！");
+      }
+      else {
+        id = getTimeAndRandom();
+        $.ajaxFileUpload({
+          type: "post",
+          url: "http://" + hostip + "/SystemE.html?id=" + id,
+          dataType: "json",
+          fileElementId: 'upgrade',
+          cache: false,
+          success: function (data) {
+          }
+        })
+        setTimeout(progressBar(), 1000);
+      }
+    }
+
+    function Bargo(BarNum) {
+      BarNum = parseInt(BarNum * 100);
+      $("#bar").width(BarNum + "%");
+      $("#bar").html(BarNum + "%");
+    }
+
+    function progressBar() {
+      $("#up_but").attr("disabled", true);
+      $("#upgrade").attr("disabled", true);
+      $("#topLoader").show();
+      var loadvalue;
+      var animateFunc = function () {
+        $.ajax({
+          type: "GET",
+          url: "http://" + hostip + "/up_progress?id=" + id,
+          dataType: "text",
+          cache: false,
+          success: function (data) {
+            loadvalue = data;
+            Bargo(loadvalue);
+            if (loadvalue == 1) {
+              if (upgrade_filename.indexOf("uk.rar") != -1) {
+                alert("后台会花几分钟时间更新内核，请千万不要重启系统，更新完成，设备会自动重启。")
+              }
+              else if (upgrade_filename.indexOf("uk.bin") != -1) {
+                alert("后台会花几分钟时间更新内核，请千万不要重启系统，更新完成，设备会自动重启！")
+              }
+              else {
+                alert("升级成功，请重启系统！");
+              }
+              $("#topLoader").hide();
+              $("#up_but").attr("disabled", false);
+              $("#upgrade").attr("disabled", false);
+            }
+            if (loadvalue == -1) {
+              $("#topLoader").hide();
+              alert("升级失败！");
+              $("#up_but").attr("disabled", false);
+              $("#upgrade").attr("disabled", false);
+            }
+            if (loadvalue < 1 && loadvalue >= 0) {
+              setTimeout(animateFunc, 25);
+            }
+          }
+        })
+      }
+      setTimeout(animateFunc, 25);
+    }
+
+
+    function curDateTime() {
+      var d = new Date();
+      var year = d.getFullYear() + "";
+      var month = d.getMonth() + 1;
+      var date = d.getDate();
+      var day = d.getDay();
+      var Hours = d.getHours(); //获取当前小时数(0-23)
+      var Minutes = d.getMinutes(); //获取当前分钟数(0-59)
+      var Seconds = d.getSeconds(); //获取当前秒数(0-59)
+      var curDateTime = year;
+      if (month > 9) {
+        curDateTime = curDateTime + month;
+
+      }
+
+      else {
+        curDateTime = curDateTime + "0" + month;
+      }
+      if (date > 9)
+        curDateTime = curDateTime + date;
+      else
+        curDateTime = curDateTime + "0" + date;
+      if (Hours > 9)
+        curDateTime = curDateTime + Hours;
+      else
+        curDateTime = curDateTime + "0" + Hours;
+      if (Minutes > 9)
+        curDateTime = curDateTime + Minutes;
+      else
+        curDateTime = curDateTime + "0" + Minutes;
+      if (Seconds > 9)
+        curDateTime = curDateTime + Seconds;
+      else
+        curDateTime = curDateTime + "0" + Seconds;
+      return curDateTime;
+    }
+
+
+
+    function RndNum() {
+      var rnd = "";
+      for (i = 0; i <= 3; i++) {
+        rnd += Math.floor(Math.random() * 10);
+      }
+      return rnd;
+    }
+    //输出指定位数的随机数的随机整数
+    function getTimeAndRandom() {
+      return curDateTime() + RndNum(4);
+    }
+    function changeLan() {
+      var Language = $("#LanSle").val();
+      if (Language == 'English') {
+        $.ajax({
+          type: "GET",
+          url: "http://" + hostip + "/set_sys?language=english",
+          dataType: "text",
+          cache: false
+        });
+        window.location.href = 'SystemUpdateE.html';
+      }
+    } 
+  </SCRIPT>
+  <META name="GENERATOR" content="MSHTML 9.00.8112.16545">
+</HEAD>
+
+<BODY onload="GetVersion();">
+  <DIV id="body-wrapper">
+    <DIV id="sidebar">
+      <DIV id="sidebar-wrapper">
+        <H1 id="sidebar-title">
+          <A href="#">编码器</A>
+        </H1>
+        <!-- Logo (221px wide) -->
+        <A href="#">
+          <IMG id="logo" alt="编码器" src="images/logo.png" border="0">
+        </A>
+        <!-- Sidebar Profile links -->
+        <UL id="main-nav">
+          <!-- Accordion Menu -->
+          <LI>
+            <A class="nav-top-item no-submenu " href="index.html">状态显示</A>
+          </LI>
+          <LI>
+            <A class="nav-top-item" href="OutputP1Main.html"> 编码设置</A>
+            <UL>
+              <LI>
+                <A href="OutputP1Main.html">主码流</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second1.html">次码流1</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second2.html">次码流2</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second3.html">次码流3</A>
+              </LI>
+              <LI>
+                <A href="AudioEncodSet.html">音频设置</A>
+              </LI>
+              <LI>
+                <A href="AdvancSet.html">高级设置</A>
+              </LI>
+            </UL>
+          </LI>
+          <LI>
+            <A class="nav-top-item" href="OutputP1MainOsd.html"> OSD设置</A>
+            <UL>
+              <LI>
+                <A href="OutputP1MainOsd.html">主码流</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second1Osd.html">次码流1</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second2Osd.html">次码流2</A>
+              </LI>
+              <LI>
+                <A href="OutputP1Second3Osd.html">次码流3</A>
+              </LI>
+              <LI>
+                <A href="Uplogo.html">LOGO上传</A>
+              </LI>
+            </UL>
+          </LI>
+          <LI>
+            <A class="nav-top-item current" href="SetNet.html">系统设置</A>
+            <UL>
+              <LI>
+                <A href="SetNet.html">网络设置</A>
+              </LI>
+              <LI id="wifi">
+                <A href="WifiSet.html">WIFI设置</A>
+              </LI>
+              <LI id="g4">
+                <A href="g4Set.html">4G设置</A>
+              </LI>
+              <LI>
+                <A href="SetPassword.html">密码设置</A>
+              </LI>
+              <LI>
+                <A href="Remserial.html">串口透传</A>
+              </LI>
+              <LI>
+                <A href="SystemUpdate.html" class="current">系统更新</A>
+              </LI>
+              <LI>
+                <A href="Reset.html">恢复出厂设置</A>
+              </LI>
+              <LI>
+                <A href="Reboot.html">重启设备</A>
+              </LI>
+              <LI>
+                <A href="Restart.html">定时重启</A>
+              </LI>
+            </UL>
+          </LI>
+        </UL>
+      </DIV>
+    </DIV>
+    <!-- End #sidebar -->
+    <DIV id="main-content">
+      <!-- Main Content Section with everything -->
+      <div style="float:right; margin-right:0px; margin-top:-10px;">
+        <p>语言:&nbsp;
+          <select id='LanSle' onChange="changeLan()">
+            <option value="Chinese" selected="selected">中文</option>
+
+            <option value="English">英文</option>
+          </select>
+        </p>
+      </div>
+
+      <!-- End .shortcut-buttons-set -->
+      <DIV class="clear"></DIV>
+      <!-- End .clear -->
+
+
+
+      <DIV class="content-box">
+        <!-- Start Content Box -->
+        <DIV class="content-box-header">
+          <H3>
+            <div id="version">系统当前版本：</div>
+          </H3>
+        </DIV>
+        <!-- End .content-box-header -->
+        <DIV class="content-box-content">
+          <DIV class="tab-content">
+
+            <form name="aspnetForm" id="aspnetForm" enctype="multipart/form-data" method="post">
+              <div class="write">
+                <dl>
+                  <dt>升级系统：</dt>
+                  <dd>
+                    <div id="container">
+                      <div class="graph" id="topLoader" style="display:none; margin-bottom:5px;">
+                        <strong id="bar"></strong>
+                      </div>
+                      <input id="upgrade" type="file" name="upgrade" style="border:1px;height:25px;" /> (升级文件名为
+                      up.rar,请勿多人同时上传,上传过程请勿断电,请勿刷新网页)
+                    </div>
+                  </dd>
+                </dl>
+                <dl>
+                  <dt>&nbsp;</dt>
+                  <dd>
+                    <input id="up_but" type="button" name="up_but" value="上传" onClick="Upload()" class="but" />
+                  </dd>
+                </dl>
+              </div>
+            </form>
+            <DIV class="clear"></DIV>
+            <!-- End .clear -->
+          </DIV>
+          <!-- End #tab2 -->
+        </DIV>
+        <!-- End .content-box-content -->
+      </DIV>
+      <!-- End .content-box -->
+
+    </DIV>
+    <!-- End #main-content -->
+  </DIV>
+</BODY>
+
+</HTML>
