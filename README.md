@@ -51,8 +51,11 @@ starts the event.
 ## Notes about running multiple meetings in the same meetinghouse using the same encoder
 - You can only webcast 1 meeting at a time. The auto configuration system handles this well and will tell
 your device what to do.
-- To stop the meeting, I suggest unplugging the device. This way starting/stopping the webcast is all on/off
-based, no need to worry something is being webcast that shouldn't.
+- Options to stop the webcast:
+    1. Unplugging the encoder.
+    2. Unplug the HDMI input or power off the HDMI device. **This option will display the church logo**
+    
+    ![Screenshot](https://raw.githubusercontent.com/bretep/webcast-auto-conf/master/screenshot-nosig.png?sanitize=true&raw=true)
 
 ## Optional setup
 - Some meetinghouses have an `recording output` from the meetinghouse sound system. I've found this output
