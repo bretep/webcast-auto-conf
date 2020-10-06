@@ -2,7 +2,7 @@ html {
 	height: 100%; font-size: 100%; margin-bottom: 1px;
 }
 body {
-	background: url("../images/bg-body.gif") repeat-y left top rgb(240, 240, 240); color: rgb(85, 85, 85);  font-family: 12px "Î¢ÈíÑÅºÚ", Arial, Helvetica, sans-serif; font-size: 12px;
+	background: url("../images/bg-body.gif") repeat-y left top rgb(240, 240, 240); color: rgb(85, 85, 85);  font-family: 12px "Î¢ï¿½ï¿½ï¿½Åºï¿½", Arial, Helvetica, sans-serif; font-size: 12px;
 }
 #body-wrapper {
 	background: url("../images/bg-radial-gradient.gif") fixed no-repeat 230px top;
@@ -152,6 +152,7 @@ a.remove-link:hover {
 #sidebar #main-nav ul li a.current {
 	background: url("../images/menu-current-arrow.gif") no-repeat right !important;
 }
+
 #messages p {
 	padding: 10px 0px; border-top-color: rgb(221, 221, 221); border-top-width: 1px; border-top-style: solid;
 }
