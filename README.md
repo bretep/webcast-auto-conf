@@ -30,17 +30,15 @@ came with your device.
     2. Select Choose File and click Upload
         1. When the upload is successful you must reboot the encoder to install the update.
     3. System > Reboot
-4. Configure the encoder. (I plan on making this easier and will release a new firmware when ready)
-    1. Encoder > Main stream
-        Select `Disable` next to all options
-    2. OSD > Substream3 > Zone 1
-        * Zone: Enable
-        * Type: txt
-        * Text: Remote Config URL
-            
+4. Configure the encoder.
+    1. Click on `Auto Configuration` menu item.
+    2. Add the auto config URL        
             This URL is found in the [Meetinghouse Webcast](https://webcast.churchofjesuschrist.org/) portal
             under the `Teradek` menu located at the top of the page. If you have not registered your device, now
             is a good time to do so. **Serial Number will be set by the webcast encoder, no need to configure.**
+       
+    3. Click the `Enable` checkbox
+    4. Click `Save Configuration` button
             
 ## How to use after firmware install
 1. Schedule and event in the [Meetinghouse Webcast](https://webcast.churchofjesuschrist.org/) portal.
@@ -55,7 +53,7 @@ your device what to do.
     1. Unplugging the encoder.
     2. Unplug the HDMI input or power off the HDMI device. **This option will display the church logo**
     
-    ![Screenshot](https://raw.githubusercontent.com/bretep/webcast-auto-conf/master/screenshot-nosig.png?sanitize=true&raw=true)
+    ![Screenshot](https://raw.githubusercontent.com/bretep/webcast-auto-conf/master/assets/screenshot-nosig.png?sanitize=true&raw=true)
 
 ## Optional setup
 - Some meetinghouses have an `recording output` from the meetinghouse sound system. I've found this output
@@ -69,3 +67,16 @@ in these locations:
     left channel and split it to the right. I had a lot of feedback about only having the left channel working. 
 - I use a cheap $15 camera from Amazon. It is RCA based and has a builtin micropohone. The microphone does
  not work well. I use a  RCA to HDMI converter which costs $16.
+
+## User Interface Images
+### Webcast Button
+![webcastButton](https://raw.githubusercontent.com/bretep/webcast-auto-conf/master/assets/screenshot-webcast-button.png?sanitize=true&raw=true)
+
+### Configuration (webcast off)
+![webcastOff](https://raw.githubusercontent.com/bretep/webcast-auto-conf/master/assets/screenshot-webcast-off.png?sanitize=true&raw=true)
+
+### Configuration (webcast on)
+![webcastOn](https://raw.githubusercontent.com/bretep/webcast-auto-conf/master/assets/screenshot-webcast-on.png?sanitize=true&raw=true)
+
+### Configuration (encoder off-line or rebooting)
+![offline](https://raw.githubusercontent.com/bretep/webcast-auto-conf/master/assets/screenshot-webcast-offline.png?sanitize=true&raw=true)
