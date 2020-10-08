@@ -104,7 +104,7 @@ export default function App() {
                 </AppBar>
                 {(savingData || !ready) && <LinearProgress style={{
                     top: 45,
-                    position: "absolute",
+                    position: "fixed",
                     width: "100%"
                 }}/>}
             </div>
@@ -144,6 +144,7 @@ export default function App() {
                                     <TextField
                                         id="outlined-multiline-static"
                                         label="Configured RTMP"
+                                        helperText="Displays the configured RTMP stream. This will update only when remote configuration is enabled and the remote config is ready to receive a RTMP stream."
                                         multiline
                                         rows={3}
                                         value={stream0.rtmp_publish_uri}

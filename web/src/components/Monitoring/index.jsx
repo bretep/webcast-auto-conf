@@ -172,7 +172,7 @@ const Monitoring = () => {
                     <Grid
                         item
                     >
-                        {sys.ip}
+                        {status.dhcp_enable === "1" ? status.dhcp_ip : sys.ip}
                     </Grid>
                     <Grid
                         item
