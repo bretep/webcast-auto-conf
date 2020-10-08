@@ -114,10 +114,14 @@ func (r *Resource) Poll() string {
 	config, _ := GetEncoderConfig()
 
 	remoteURL := config.Section("").Key("s3_osd0_txt").String()
-	if remoteURL != r.url {
+	remoteEnabled := config.Section("").Key("s3_osd0_enable").String()
+	if remoteURL != r.url && remoteEnabled == "1" {
 		reboot()
 	}
 
+	if remoteEnabled == "0" {
+		return ""
+	}
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	resp, err := http.Get(r.url)
 	if err != nil {
