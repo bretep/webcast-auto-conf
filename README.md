@@ -46,7 +46,7 @@ came with your device.
     4. Click `Save Configuration` button
             
 ## How to use after firmware install
-1. Schedule and event in the [Meetinghouse Webcast](https://webcast.churchofjesuschrist.org/) portal.
+1. Schedule an event in the [Meetinghouse Webcast](https://webcast.churchofjesuschrist.org/) portal.
     1. Select the encoder you registered in __Select Your Encoder__
 2. Your device will now auto configure when the [Meetinghouse Webcast](https://webcast.churchofjesuschrist.org/)
 starts the event.
@@ -56,7 +56,7 @@ starts the event.
 your device what to do.
 - Options to stop the webcast:
     1. Unplugging the encoder.
-    2. Unplug the HDMI input or power off the HDMI device. **This option will display the church logo**
+    2. Unplug the HDMI input or power off the HDMI device. __This option will display the church logo__
     
     ![Screenshot](https://raw.githubusercontent.com/bretep/webcast-auto-conf/master/assets/screenshot-nosig.png?sanitize=true&raw=true)
 
