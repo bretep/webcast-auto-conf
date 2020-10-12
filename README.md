@@ -8,8 +8,7 @@ which takes advantage of the Remote Config URL that is provided by the [Meetingh
 portal.   
 
 ## Contributions
-Please feel free to improve on this firmware. Creating better webpages than the defaults would be useful.
-I accept pull requests.
+Please feel free to improve on this firmware. I accept pull requests.
 
 ## Requirements
 1. [J-Tech Digital H.264 IP Encoder](https://www.amazon.com/dp/B0761X6L3C/ref=cm_sw_em_r_mt_dp_3.LAFbFG2AWGG)
@@ -20,6 +19,12 @@ I accept pull requests.
 1. RTMP URL and Stream
 2. Video bitrate
 3. Audio bitrate
+
+## Will installing this firmware reset all my settings?
+No, all settings are left untouched. The only time a setting is changed is if all of the following are true:
+ - __Auto configuration__ is enalbed
+ - A valid __Auto configuration URL__ is configured 
+ - The __Auto configuration URL__ tells my firmware to change any of the above 3 settings. (my firmware checks this URL every 10 seconds)
 
 ## How to install
 1. Configure the network settings as required for your meeting house using the instructions that
@@ -35,14 +40,14 @@ came with your device.
     2. Add the auto config URL        
             This URL is found in the [Meetinghouse Webcast](https://webcast.churchofjesuschrist.org/) portal
             under the `Teradek` menu located at the top of the page. If you have not registered your device, now
-            is a good time to do so. **Serial Number will be set by the webcast encoder, no need to configure.**
+            is a good time to do so. __Serial Number will be set by the webcast encoder, no need to configure.__
        
     3. Click the `Enable` checkbox
     4. Click `Save Configuration` button
             
 ## How to use after firmware install
 1. Schedule and event in the [Meetinghouse Webcast](https://webcast.churchofjesuschrist.org/) portal.
-    1. Select the encoder you registered in **Select Your Encoder**
+    1. Select the encoder you registered in __Select Your Encoder__
 2. Your device will now auto configure when the [Meetinghouse Webcast](https://webcast.churchofjesuschrist.org/)
 starts the event.
 
