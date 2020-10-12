@@ -24,7 +24,7 @@ Please feel free to improve on this firmware. I accept pull requests.
 No, all settings are left untouched. The only time a setting is changed is if all of the following are true:
  - __Auto configuration__ is enalbed
  - A valid __Auto configuration URL__ is configured 
- - The __Auto configuration URL__ tells my firmware to change any of the above 3 settings. (my firmware checks this URL every 10 seconds)
+ - The __Auto configuration URL__ tells this firmware to change any of the above 3 settings. (changes are checked every 10 seconds)
 
 ## How to install
 1. Configure the network settings as required for your meeting house using the instructions that
