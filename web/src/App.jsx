@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
@@ -10,13 +10,15 @@ import FormControl from "@material-ui/core/FormControl";
 import TextField from "@material-ui/core/TextField";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
-import {buildQueryString, encoderAPIURL, reboot} from "./uitl";
+import {buildQueryString, encoderAPIURL, wsURL} from "./uitl";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import LiveTvIcon from '@material-ui/icons/LiveTv';
 import useTheme from "@material-ui/core/styles/useTheme";
+import Logs from "./Logs";
 
 export default function App() {
-    const {stream0, osd3, ready} = useEncoder()
+    const {stream0, osd30, ready, reboot} = useEncoder()
+
     const theme = useTheme()
     const toolbarIcon = `${process.env.PUBLIC_URL}/lightbar-drk-blue.png`
     const [formData, setFormData] = useState({
@@ -24,6 +26,7 @@ export default function App() {
         autoEnabled: false
     })
     const [savingData, setSavingData] = useState(false)
+
     const handleChange = (prop) => (event) => {
         setFormData((prevState => ({...prevState, [prop]: event.target.value})));
     };
@@ -33,16 +36,16 @@ export default function App() {
     };
 
     useEffect(() => {
-        if (osd3) {
-            setFormData((prevState => ({...prevState, autoEnabled: osd3.enable === "1"})));
+        if (osd30) {
+            setFormData((prevState => ({...prevState, autoEnabled: osd30.enable === "1"})));
         }
-    }, [osd3.enable])
+    }, [osd30.enable])
 
     useEffect(() => {
-        if (osd3) {
-            setFormData((prevState => ({...prevState, remoteConfigUrl: osd3.txt})));
+        if (osd30) {
+            setFormData((prevState => ({...prevState, remoteConfigUrl: osd30.txt})));
         }
-    }, [osd3.txt])
+    }, [osd30.txt])
 
     useEffect(() => {
         if (ready && savingData) {
@@ -56,7 +59,7 @@ export default function App() {
             enc_chn: '3',
             osd_chn: '0',
             txt: formData.remoteConfigUrl,
-            type: '1',
+            type: '0',
             enable: formData.autoEnabled ? '1' : '0',
             _: `${Date.now()}`
         }
@@ -126,14 +129,14 @@ export default function App() {
                         <Grid
                             item
                         >
-                            <box >
-                            <LiveTvIcon style={{
-                                fontSize: 100,
-                                color: stream0.rtmp_publish_enable === "1" ? 'green' : theme.palette.primary.main
-                            }}/>
-                            <Typography variant="h6" gutterBottom>
-                            Webcast {(stream0 && stream0.rtmp_publish_enable === "1") ? 'On' : 'Off'}
-                            </Typography>
+                            <box>
+                                <LiveTvIcon style={{
+                                    fontSize: 100,
+                                    color: stream0.rtmp_publish_enable === "1" ? 'green' : theme.palette.primary.main
+                                }}/>
+                                <Typography variant="h6" gutterBottom>
+                                    Webcast {(stream0 && stream0.rtmp_publish_enable === "1") ? 'On' : 'Off'}
+                                </Typography>
                             </box>
                         </Grid>
                         <Grid
@@ -141,21 +144,21 @@ export default function App() {
                         >
                             <FormControl fullWidth variant="filled">
                                 {(stream0 && stream0.rtmp_publish_uri) &&
-                                    <TextField
-                                        id="outlined-multiline-static"
-                                        label="Configured RTMP"
-                                        helperText="Displays the configured RTMP stream. This will update only when remote configuration is enabled and the remote config is ready to receive a RTMP stream."
-                                        multiline
-                                        rows={3}
-                                        value={stream0.rtmp_publish_uri}
-                                        variant="outlined"
-                                        inputProps={{
-                                            disabled: true
-                                        }}
-                                        style={{
-                                            paddingBottom: 16
-                                        }}
-                                    />}
+                                <TextField
+                                    id="outlined-multiline-static"
+                                    label="Configured RTMP"
+                                    helperText="Displays the configured RTMP stream. This will update only when remote configuration is enabled and the remote config is ready to receive a RTMP stream."
+                                    multiline
+                                    rows={3}
+                                    value={stream0.rtmp_publish_uri}
+                                    variant="outlined"
+                                    inputProps={{
+                                        disabled: true
+                                    }}
+                                    style={{
+                                        paddingBottom: 16
+                                    }}
+                                />}
                                 <TextField
                                     id="outlined-helperText"
                                     label="Remote Configuration URL"
@@ -181,12 +184,21 @@ export default function App() {
                                 color="primary"
                                 onClick={saveConfiguration}
                                 disabled={savingData}
+                                style={{
+                                    marginBottom: 16
+                                }}
                             >
                                 {!savingData && <>Save Configuration</>}
                                 {savingData && <>
                                     Saving Configuration...
                                 </>}
                             </Button>
+                            <Typography variant="body1" gutterBottom style={{
+                                flexGrow: 1,
+                            }}>
+                                Logs
+                            </Typography>
+                            <Logs/>
                         </Grid>
                     </Grid>
                 </Paper>

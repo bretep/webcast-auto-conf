@@ -3,6 +3,7 @@
  *
  * @param {number} num The number of bytes.
  */
+
 export function readableBytes(num) {
     const neg = num < 0;
 
@@ -52,14 +53,11 @@ export function buildQueryString(obj) {
     return str.join("&");
 }
 
-export function reboot() {
-    fetch(`${encoderAPIURL}/reboot?_=${Date.now()}`)
-}
-
+const wsURL = `ws://${process.env.NODE_ENV === 'production' ? window.location.host : '127.0.0.1'}:8088/ws`
 
 let encoderAPIURL = window.location.origin
 if (process.env.NODE_ENV !== "production") {
     encoderAPIURL = 'http://dev.localhost:5000'
 }
-export {encoderAPIURL}
+export {encoderAPIURL, wsURL}
 

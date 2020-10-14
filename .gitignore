@@ -25,3 +25,5 @@ up.rar
 .idea/markdown-navigator.xml
 .idea/markdown-navigator/
 .idea/codeStyles/Project.xml
+
+cmd/webcast-auto-conf/*.log
