@@ -1,8 +1,12 @@
 import {useEncoderContext} from "./index";
 
 export const useEncoder = () => {
-    const { encoderState } = useEncoderContext()
+
+    const {encoderState, reboot} = useEncoderContext()
+
+
     return {
-        ...encoderState
+        ...encoderState,
+        reboot
     }
 }

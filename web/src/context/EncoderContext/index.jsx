@@ -1,6 +1,7 @@
-import React, {createContext, useContext, useEffect, useReducer} from 'react';
+import React, {createContext, useCallback, useContext, useEffect, useReducer} from 'react';
 import {formatDuration} from "date-fns";
-import {encoderAPIURL, timeoutPromise} from "../../uitl";
+import {encoderAPIURL, timeoutPromise, wsURL} from "../../uitl";
+import useWebSocket, {ReadyState} from "react-use-websocket";
 
 const EncoderContext = createContext(null);
 
@@ -9,10 +10,12 @@ const encoderReducer = (state, action) => {
         case 'UPDATE_STATE':
 
             return {
+                ...state,
                 status: {...state.status, ...action.data.status},
                 sys: {...state.sys, ...action.data.sys},
                 stream0: {...state.stream0, ...action.data.stream0},
-                osd3: {...state.osd3, ...action.data.osd3},
+                osd30: {...state.osd30, ...action.data.osd30},
+                osd31: {...state.osd31, ...action.data.osd31},
                 ready: true
             };
 
@@ -38,7 +41,8 @@ const useEncoderState = () => {
         },
         sys: {},
         stream0: {},
-        osd3: {}
+        osd30: {},
+        osd31: {},
     })
 }
 
@@ -73,7 +77,7 @@ const useContextValue = () => {
                 }));
         }
         const getSystem = async () => {
-            return timeoutPromise(1500,fetch(`${encoderAPIURL}/get_sys?_=${Date.now()}`)
+            return timeoutPromise(1500, fetch(`${encoderAPIURL}/get_sys?_=${Date.now()}`)
                 .then(res => res.text())
                 .then(str => {
                     return (new window.DOMParser()).parseFromString(str, "text/xml")
@@ -104,7 +108,7 @@ const useContextValue = () => {
                 }));
         }
         const getStream0 = async () => {
-            return timeoutPromise(1500,fetch(`${encoderAPIURL}/get_output?input=0&output=0&_=${Date.now()}`)
+            return timeoutPromise(1500, fetch(`${encoderAPIURL}/get_output?input=0&output=0&_=${Date.now()}`)
                 .then(res => res.text())
                 .then(str => {
                     return (new window.DOMParser()).parseFromString(str, "text/xml")
@@ -156,8 +160,30 @@ const useContextValue = () => {
                     }) || {})
                 }));
         }
-        const getOSD3 = async () => {
-            return timeoutPromise(1500,fetch(`${encoderAPIURL}/get_osd?enc_chn=3&osd_chn=0&_=${Date.now()}`)
+        const getOSD30 = async () => {
+            return timeoutPromise(1500, fetch(`${encoderAPIURL}/get_osd?enc_chn=3&osd_chn=0&_=${Date.now()}`)
+                .then(res => res.text())
+                .then(str => {
+                    return (new window.DOMParser()).parseFromString(str, "text/xml")
+                })
+                .then(data => {
+                    const osd = data.querySelector('osd')
+                    return ((data && osd && {
+                        enable: osd.querySelector('enable') && osd.querySelector('enable').innerHTML.trim() || null,
+                        type: osd.querySelector('type') && osd.querySelector('type').innerHTML.trim() || null,
+                        x: osd.querySelector('x') && osd.querySelector('x').innerHTML.trim() || null,
+                        y: osd.querySelector('y') && osd.querySelector('y').innerHTML.trim() || null,
+                        alpha: osd.querySelector('alpha') && osd.querySelector('alpha').innerHTML.trim() || null,
+                        font_size: osd.querySelector('font_size') && osd.querySelector('font_size').innerHTML.trim() || null,
+                        color: osd.querySelector('color') && osd.querySelector('color').innerHTML.trim() || null,
+                        bcolor: osd.querySelector('bcolor') && osd.querySelector('bcolor').innerHTML.trim() || null,
+                        txt: osd.querySelector('txt') && osd.querySelector('txt').innerHTML.trim() || null,
+                        bmp: osd.querySelector('bmp') && osd.querySelector('bmp').innerHTML.trim() || null,
+                    }) || {})
+                }));
+        }
+        const getOSD31 = async () => {
+            return timeoutPromise(1500, fetch(`${encoderAPIURL}/get_osd?enc_chn=3&osd_chn=1&_=${Date.now()}`)
                 .then(res => res.text())
                 .then(str => {
                     return (new window.DOMParser()).parseFromString(str, "text/xml")
@@ -185,10 +211,16 @@ const useContextValue = () => {
                     type: 'NOT_READY'
                 })
             })
-            const sys = await getSystem().catch(() => {})
-            const stream0 = await getStream0().catch(() => {})
-            const osd3 = await getOSD3().catch(() => {})
-            if (status && sys && stream0 && osd3) {
+            const sys = await getSystem().catch(() => {
+            })
+            const stream0 = await getStream0().catch(() => {
+            })
+            const osd30 = await getOSD30().catch(() => {
+            })
+            const osd31 = await getOSD31().catch(() => {
+            })
+
+            if (status && sys && stream0 && osd30 && osd31) {
                 let upTime = ''
                 if (status && status.runtime) {
                     const [yearMonthDay, hourMinutesSeconds] = status.runtime.split(' ')
@@ -220,7 +252,8 @@ const useContextValue = () => {
                         status: {...status, upTime, cpuusage, memoryfree, memorytotal},
                         sys: {...sys},
                         stream0: {...stream0},
-                        osd3: {...osd3},
+                        osd30: {...osd30},
+                        osd31: {...osd31},
                     }
                 })
             }
@@ -239,8 +272,35 @@ const useContextValue = () => {
 
     }, []);
 
+    // In functional React component
+    const getSocketUrl = useCallback(() => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(wsURL);
+            }, 2000);
+        });
+    }, []);
+
+
+    const {sendJsonMessage, readyState} = useWebSocket(getSocketUrl, {
+        shouldReconnect: (closeEvent) => {
+            return true
+        },
+        reconnectAttempts: 99999,
+        reconnectInterval: 1000,
+    });
+
+    const reboot = () => {
+
+        if (readyState === ReadyState.OPEN) {
+            sendJsonMessage({reboot: true})
+        } else {
+            fetch(`${encoderAPIURL}/reboot?_=${Date.now()}`)
+        }
+    }
     return {
-        encoderState
+        encoderState,
+        reboot
     }
 }
 
