@@ -209,6 +209,7 @@ func (h *Hub) run() {
 
 // State represents the last-known state of a URL.
 type State struct {
+	statusUrl string
 	url    string
 	status string
 }
@@ -243,8 +244,48 @@ func logState(s map[string]string) {
 
 // Resource represents an HTTP URL to be polled by this program.
 type Resource struct {
+	statusUrl string
 	url      string
 	errCount int
+}
+
+func (r *Resource) GetStats() string {
+	config, _ := GetEncoderConfig()
+
+	statusURL := config.Section("").Key("s3_osd1_txt").String()
+	statusEnabled := config.Section("").Key("s3_osd1_enable").String()
+	if statusEnabled != "1" {
+		return "200"
+	}
+	if statusURL != r.statusUrl {
+		reboot()
+	}
+
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	resp, err := http.Get("http://admin:admin@127.0.0.1/get_status")
+	if err != nil {
+		log.Println("Error", r.url, err)
+		logrus.Error(err.Error())
+		r.errCount++
+		return err.Error()
+	}
+	defer resp.Body.Close()
+	logrus.Info("Fetched local status.")
+
+	contentType := resp.Header.Get("Content-Type")
+
+	uploadResp, err := http.Post(r.statusUrl,contentType, resp.Body)
+	if err != nil {
+		log.Println("Error", r.url, err)
+		logrus.Error(err.Error())
+		r.errCount++
+		return err.Error()
+	}
+	defer uploadResp.Body.Close()
+	logrus.Info("Posted status upstream.")
+
+	r.errCount = 0
+	return uploadResp.Status
 }
 
 // Poll executes an HTTP HEAD request for url
@@ -301,8 +342,9 @@ func (r *Resource) Sleep(done chan<- *Resource) {
 func Poller(in <-chan *Resource, out chan<- *Resource, status chan<- State) {
 	for r := range in {
 		s := r.Poll()
-		status <- State{r.url, s}
+		status <- State{r.statusUrl, r.url, s}
 		out <- r
+		r.GetStats()
 	}
 }
 
@@ -507,14 +549,32 @@ func main() {
 		time.Sleep(10 * time.Second)
 	}
 
+	statusURL := ""
 	config, _ := GetEncoderConfig()
+	if config.Section("").Key("s3_osd0_txt").String() == "1" {
+		for {
+			log.Print("Checking for remote URL.")
+			logrus.Info("Waiting for valid status URL to be configured...")
+			config, _ := GetEncoderConfig()
+			statusURL := config.Section("").Key("s3_osd1_txt").String()
+			_, err := url.ParseRequestURI(statusURL)
+			if err == nil {
+				break
+			}
+			time.Sleep(10 * time.Second)
+		}
+	} else {
+		statusURL = config.Section("").Key("s3_osd1_txt").String()
+	}
+
 	logrus.Info("Found configured remote configuration URL!")
 
 	remoteURL := config.Section("").Key("s3_osd0_txt").String()
+	statusURL = config.Section("").Key("s3_osd1_txt").String()
 
 	// Send some Resources to the pending queue.
 	go func() {
-		pending <- &Resource{url: remoteURL}
+		pending <- &Resource{statusUrl: statusURL, url: remoteURL}
 	}()
 
 	for r := range complete {
