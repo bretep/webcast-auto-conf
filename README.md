@@ -5,7 +5,19 @@ During these latter-days we have a requirement to webcast worship meetings.
 To make this process easier I've created a firmware for devices that use the 
 [J-Tech Digital H.264 IP Encoder](https://www.amazon.com/dp/B0761X6L3C/ref=cm_sw_em_r_mt_dp_3.LAFbFG2AWGG)
 which takes advantage of the Remote Config URL that is provided by the [Meetinghouse Webcast](https://webcast.churchofjesuschrist.org/)
-portal.   
+portal.
+
+### Motivation
+My Stake consists of 4 buildings and 14 wards. I needed a solution that encompassed the following requirements:
+- Reliability: Reduce as many points of failure as possible
+- Repeatability: Can reliably be deployed across chapels with ease
+- Low cost: No expensive web camera, computers, or software
+- Stationary: The podium can move up and down
+- No-fuss: Power on/off to start and stop the webcast
+- Simple configuration using the Church provided Meetinghouse Webcast system
+- Easy to train and delegate
+
+The Church provided Meetinghouse Webcast system combined with this project, has satisfied all my requiremens and made all my meetings 100% automated. I have successfully been running meetings for two months with no issues.
 
 ## Contributions
 Please feel free to improve on this firmware. I accept pull requests.
