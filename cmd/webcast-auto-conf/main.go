@@ -179,6 +179,7 @@ func newHub(logFile string) *Hub {
 		logfile:    logFile,
 	}
 }
+
 type Command struct {
 	Reboot bool `json:"reboot"`
 }
@@ -274,6 +275,13 @@ func (r *Resource) Poll() string {
 		return err.Error()
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		message := fmt.Sprintf("HTTP Status Code (%d)", resp.StatusCode)
+		log.Println("Error", r.url, message)
+		r.errCount++
+		return message
+	}
 
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -447,7 +455,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.reader()
 }
 
-func startWs(hub *Hub, ) {
+func startWs(hub *Hub) {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
