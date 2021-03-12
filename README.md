@@ -68,9 +68,13 @@ starts the event.
 your device what to do.
 - Options to stop the webcast:
     1. Unplugging the encoder.
-    2. Unplug the HDMI input or power off the HDMI device. __This option will display the church logo__
+    2. Unplug the HDMI input or power off the HDMI device. __This option will display a no input detected screen__
     
     ![Screenshot](https://raw.githubusercontent.com/bretep/webcast-auto-conf/master/assets/screenshot-nosig.png?sanitize=true&raw=true)
+
+  You can customize this screen by creating a 1280x720 PNG file then run the following command: ```ffmpeg -i screenshot-nosig.png -pix_fmt yuv420p nosig.yuv```  
+  
+  The `nosig.yuv` file needs to be located in the `up/` directory and then run `make build-firmware` 
 
 ## Optional setup
 - Some meetinghouses have an `recording output` from the meetinghouse sound system. I've found this output
